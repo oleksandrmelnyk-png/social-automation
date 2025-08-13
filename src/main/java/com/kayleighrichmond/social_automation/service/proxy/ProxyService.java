@@ -78,13 +78,6 @@ public class ProxyService {
         proxyRepository.save(proxy);
     }
 
-    public void updateVerified(String id, boolean verified) {
-        Proxy proxy = findByIdOrThrow(id);
-        proxy.setVerified(verified);
-
-        proxyRepository.save(proxy);
-    }
-
     public Proxy findByIdOrThrow(String id) {
         return proxyRepository.findById(id)
                 .orElseThrow(() -> new ProxyAlreadyExistsException("Cannot find proxy by id " + id));

@@ -2,7 +2,7 @@
 set -e
 
 APP_DIR="/opt/introlab/kayleigh-richmond-social-media-account-automation-platform/social-automation"
-DOCKER_COMPOSE_FILE="$APP_DIR/docker/docker-compose.yml"
+DOCKER_COMPOSE_FILE="$APP_DIR/docker/docker-compose.yaml"
 
 cd "$APP_DIR"
 

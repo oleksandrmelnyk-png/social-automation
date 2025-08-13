@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: social-automation
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+nst-browser:
+  api-key: ${NST_BROWSER_API_KEY}
+  url: ${NST_API_URL}

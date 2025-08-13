@@ -31,7 +31,6 @@ public class MailTmService {
         String formattedAddress = address.substring(0, address.indexOf("@")).replaceAll("\\.", "");
         String mailTmAddress = "%s%d@%s".formatted(formattedAddress, random.nextInt(9999) + 1, domain.getDomain());
 
-        System.out.println(mailTmAddress);
         mailTmClient.createAccount(mailTmAddress, password);
         return mailTmAddress;
     }

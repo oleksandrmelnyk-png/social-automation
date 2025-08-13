@@ -1,23 +1,23 @@
 package com.kayleighrichmond.social_automation.service.account.tiktok;
 
+import com.kayleighrichmond.social_automation.exception.ServerException;
 import com.kayleighrichmond.social_automation.model.Proxy;
 import com.kayleighrichmond.social_automation.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.service.account.tiktok.builder.TikTokAccountBuilder;
 import com.kayleighrichmond.social_automation.service.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
 import com.kayleighrichmond.social_automation.service.nst.NstBrowserClient;
 import com.kayleighrichmond.social_automation.service.nst.NstBrowserService;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileResponse;
 import com.kayleighrichmond.social_automation.service.nst.dto.StartBrowserResponse;
+import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
-import com.kayleighrichmond.social_automation.service.randomuser.RandomUserClient;
-import com.kayleighrichmond.social_automation.service.randomuser.dto.RandomUserResponse;
 import com.kayleighrichmond.social_automation.type.Status;
 import com.kayleighrichmond.social_automation.web.dto.account.CreateAccountsRequest;
 import com.microsoft.playwright.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -39,43 +39,48 @@ public class TikTokCreatorFacade {
 
     private final NstBrowserClient nstBrowserClient;
 
-    private final RandomUserClient randomUserClient;
-
     private final ProxyService proxyService;
 
     private final TikTokService tikTokService;
 
     private final NstBrowserService nstBrowserService;
 
-    @Async
+    private final TikTokAccountBuilder tikTokAccountBuilder;
+
     public void processAccountCreation(CreateAccountsRequest createAccountsRequest) {
-        try {
-            List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountsRequest.getCountryCode(), 5, PageRequest.of(0, createAccountsRequest.getAmount()));
-            List<TikTokAccount> tikTokAccounts = createTikTokAccountsWithProxies(proxies.subList(0, createAccountsRequest.getAmount()));
+        List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountsRequest.getCountryCode(), 5, PageRequest.of(0, createAccountsRequest.getAmount()));
+        List<TikTokAccount> tikTokAccounts = createTikTokAccountsWithProxies(proxies.subList(0, createAccountsRequest.getAmount()));
 
-            int createdCount = 0;
+        int createdCount = 0;
 
-            for (Proxy proxy : proxies) {
-                while (proxy.getAccountsLinked() < 5 && createdCount < createAccountsRequest.getAmount()) {
-                    try {
-                        TikTokAccount tikTokAccount = tikTokAccounts.get(createdCount++);
-                        createAccountWithProxy(proxy, tikTokAccount);
-                    } catch (Exception e) {
-                        log.error("Error creating account with proxy {}: {}", proxy.getHost(), e.getMessage(), e);
-                    }
+        for (Proxy proxy : proxies) {
+            while (proxy.getAccountsLinked() < 5 && createdCount < createAccountsRequest.getAmount()) {
+                try {
+                    TikTokAccount tikTokAccount = tikTokAccounts.get(createdCount++);
+                    createAccountWithProxy(proxy, tikTokAccount);
+                }
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    tikTokService.updateAllFromInProgressToFailed();
+                    throw new ServerException("Something went wrong with account registering");
                 }
             }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
     private void createAccountWithProxy(Proxy proxy, TikTokAccount tikTokAccount) {
-        CreateProfileResponse profile = nstBrowserClient.createProfile(
-                tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(),
-                proxy
-        );
-        StartBrowserResponse startBrowserResponse = nstBrowserClient.startBrowser(profile.getData().getProfileId());
+        StartBrowserResponse startBrowserResponse;
+        CreateProfileResponse profile;
+        try {
+            profile = nstBrowserClient.createProfile(
+                    tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(),
+                    proxy
+            );
+            startBrowserResponse = nstBrowserClient.startBrowser(profile.getData().getProfileId());
+        } catch (NstBrowserException e) {
+            tikTokService.updateAllFromInProgressToFailed();
+            throw new NstBrowserException("Something went wrong with Nst browser");
+        }
 
         Page page = null;
         try (Playwright playwright = Playwright.create();
@@ -92,8 +97,8 @@ public class TikTokCreatorFacade {
 
             page.close();
         } catch (NoMessagesReceivedException e) {
-            log.warn("Not received message for {}. Skipping...", profile.getData().getName());
             nstBrowserClient.deleteBrowser(profile.getData().getProfileId());
+            throw new NoMessagesReceivedException("Didn't receive message from mail service for " + tikTokAccount.getEmail());
         } finally {
             if (page != null && !page.isClosed()) {
                 page.close();
@@ -168,7 +173,8 @@ public class TikTokCreatorFacade {
             waitForAddAndClickOrSkip(page);
 
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            throw new ServerException("Something went wrong with account registering");
         }
     }
 
@@ -188,22 +194,11 @@ public class TikTokCreatorFacade {
         }
     }
 
-    private List<TikTokAccount> createTikTokAccountsWithProxies(List<Proxy> proxies) throws InterruptedException {
+    private List<TikTokAccount> createTikTokAccountsWithProxies(List<Proxy> proxies) {
         List<TikTokAccount> tikTokAccounts = new ArrayList<>();
 
         for (Proxy proxy : proxies) {
-            RandomUserResponse.RandomResult randomUser = randomUserClient.getRandomUser();
-            String password = "Qwerty1234@";
-            String address = mailTmService.createAddressWithDomainOncePerSecond(randomUser.getEmail(), password);
-
-            TikTokAccount tikTokAccount = TikTokAccount.builder()
-                    .email(address)
-                    .password(password)
-                    .name(randomUser.getName())
-                    .proxy(proxy)
-                    .status(Status.IN_PROGRESS)
-                    .dob(randomUser.getDob())
-                    .build();
+            TikTokAccount tikTokAccount = tikTokAccountBuilder.buildWithProxy(proxy);
 
             tikTokAccounts.add(tikTokAccount);
             tikTokService.save(tikTokAccount);

@@ -5,6 +5,7 @@ import com.kayleighrichmond.social_automation.model.Proxy;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileRequest;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileResponse;
 import com.kayleighrichmond.social_automation.service.nst.dto.StartBrowserResponse;
+import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.okhttp.OkHttpHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,8 @@ public class NstBrowserClient {
     @Value("${nst-browser.api-key}")
     private String NST_BROWSER_API_KEY;
 
-    private final static String NST_API = "http://localhost:8848/api/v2";
+    @Value("${nst-browser.url}")
+    private String NST_API;
 
     public CreateProfileResponse createProfile(String profileName, Proxy proxy) {
         try {
@@ -59,7 +61,7 @@ public class NstBrowserClient {
             response.close();
             return createProfileResponse;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new NstBrowserException("Couldn't create profile in Nst browser");
         }
     }
 
@@ -76,14 +78,13 @@ public class NstBrowserClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()){
-
             String responseBody = okHttpHelper.buildResponseBodyOrThrow(response, "NstApi error: " + response.code() + " - " + response.message());
             StartBrowserResponse startBrowserResponse = objectMapper.readValue(responseBody, StartBrowserResponse.class);
 
             response.close();
             return startBrowserResponse;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new NstBrowserException("Couldn't start Nst browser");
         }
     }
 
@@ -102,7 +103,7 @@ public class NstBrowserClient {
         try (Response response = client.newCall(request).execute()){
             okHttpHelper.buildResponseBodyOrThrow(response, "NstApi error: " + response.code() + " - " + response.message());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new NstBrowserException("Couldn't delete Nst profile");
         }
     }
 }

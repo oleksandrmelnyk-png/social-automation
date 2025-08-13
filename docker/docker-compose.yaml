@@ -15,7 +15,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       DB_HOST: ${DB_HOST}
-      DB_PORT: 5432
+      DB_PORT: ${DB_PORT}
     depends_on:
       - postgres_kayleigh
     ports:
@@ -35,6 +35,17 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  nstbrowserless_00:
+    image: nstbrowser/browserless:latest
+    environment:
+      TOKEN: ${NST_BROWSER_API_KEY}
+      HEADLESS: "true"
+      REMOTE_DEBUGGING_PORT: 9222
+    ports:
+      - "8000:8848"
+      - "9222:9222"
+    restart: unless-stopped
 
 volumes:
   pgdata:

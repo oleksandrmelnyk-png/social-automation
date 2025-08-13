@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: social-automation
+  datasource:
+    url: jdbc:postgresql://localhost:5449/myapp_db
+    username: myapp_user
+    password: supersecretpassword
+    driver-class-name: org.postgresql.Driver
+nst-browser:
+  api-key: 7ffc59e4-8b42-4db8-b0c6-c996c4570360
+  url: http://localhost:8000/api/v2
