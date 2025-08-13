@@ -1,9 +1,10 @@
 package com.kayleighrichmond.social_automation.web.controller.validator;
 
 import com.kayleighrichmond.social_automation.model.Proxy;
-import com.kayleighrichmond.social_automation.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.service.account.tiktok.TikTokService;
 import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
 import com.kayleighrichmond.social_automation.service.proxy.exception.NotEnoughProxiesException;
+import com.kayleighrichmond.social_automation.type.Status;
 import com.kayleighrichmond.social_automation.web.dto.account.CreateAccountsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -13,12 +14,16 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class VerifyProxiesValidator implements Validator {
+public class TikTokAccountCreationValidator implements Validator {
+
+    private final TikTokService tikTokService;
 
     private final ProxyService proxyService;
 
     @Override
     public void validate(Object target) {
+        tikTokService.throwIfAccountsInProgressExists(Status.IN_PROGRESS);
+
         boolean verified = verifyArgument(target.getClass());
         if (!verified) {
             throw new IllegalArgumentException("CreateAccountsRequest required");
@@ -45,4 +50,5 @@ public class VerifyProxiesValidator implements Validator {
     public boolean verifyArgument(Class<?> clazz) {
         return clazz.equals(CreateAccountsRequest.class);
     }
+
 }

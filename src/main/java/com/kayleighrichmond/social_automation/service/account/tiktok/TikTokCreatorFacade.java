@@ -59,8 +59,7 @@ public class TikTokCreatorFacade {
                 while (proxy.getAccountsLinked() < 5 && createdCount < createAccountsRequest.getAmount()) {
                     try {
                         TikTokAccount tikTokAccount = tikTokAccounts.get(createdCount++);
-//                        createAccountWithProxy(proxy, tikTokAccount);
-                        Thread.sleep(50000);
+                        createAccountWithProxy(proxy, tikTokAccount);
                     } catch (Exception e) {
                         log.error("Error creating account with proxy {}: {}", proxy.getHost(), e.getMessage(), e);
                     }
