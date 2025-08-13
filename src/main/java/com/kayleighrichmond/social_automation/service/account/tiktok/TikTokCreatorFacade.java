@@ -60,7 +60,6 @@ public class TikTokCreatorFacade {
                     createAccountWithProxy(proxy, tikTokAccount);
                 }
                 catch (Exception e) {
-                    System.out.println(e.getMessage());
                     tikTokService.updateAllFromInProgressToFailed();
                     throw new ServerException("Something went wrong with account registering");
                 }
