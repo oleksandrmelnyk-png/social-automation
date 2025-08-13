@@ -1,0 +1,40 @@
+version: '3.8'
+
+networks:
+  kayleigh-prod:
+
+services:
+  app-service:
+    build: ../
+    container_name: app-kayleigh
+    restart: unless-stopped
+    networks:
+      - kayleigh-prod
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: 5432
+    depends_on:
+      - postgres_kayleigh
+    ports:
+      - "${APP_PORT}:8080"
+
+  postgres_kayleigh:
+    image: postgres:16
+    container_name: postgres-db-kayleigh
+    restart: unless-stopped
+    networks:
+      - kayleigh-prod
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

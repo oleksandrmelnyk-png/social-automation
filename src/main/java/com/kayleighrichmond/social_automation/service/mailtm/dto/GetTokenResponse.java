@@ -1,0 +1,12 @@
+package com.kayleighrichmond.social_automation.service.mailtm.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GetTokenResponse {
+
+    private String token;
+
+}
