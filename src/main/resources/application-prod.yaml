@@ -7,5 +7,5 @@ spring:
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 nst-browser:
-  api-key: 7ffc59e4-8b42-4db8-b0c6-c996c4570360
-  url: http://nstbrowserless_00:8848/api/v2
+  api-key: ${NST_BROWSER_API_KEY}
+  url: ${NST_API_URL}
