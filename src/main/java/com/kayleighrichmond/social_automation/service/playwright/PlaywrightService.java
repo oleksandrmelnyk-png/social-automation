@@ -43,6 +43,8 @@ public class PlaywrightService {
                 TRUE
         );
 
+        log.info("Init playwright url: {}", url);
+
         Browser browser = playwright.chromium().connectOverCDP(url);
         BrowserContext context = browser.contexts().get(0);
         Page page = context.pages().get(0);
