@@ -40,7 +40,9 @@ public class MailTmService {
 
         String subject = message.getSubject();
         if (subject.matches("^\\d{6}\\s.*")) {
-            return subject.substring(0, 6);
+            String code = subject.substring(0, 6);
+            log.info("Successfully retrieved code from message: {}", code);
+            return code;
         }
 
         throw new IllegalArgumentException("No code in message");

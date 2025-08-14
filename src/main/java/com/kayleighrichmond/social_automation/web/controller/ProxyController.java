@@ -16,7 +16,7 @@ public class ProxyController {
 
     private final ProxyService proxyService;
 
-    @PostMapping("/add-all")
+    @PostMapping("/add")
     public void addProxies(@Valid @RequestBody AddProxyRequest addProxyRequest) {
         proxyService.saveAll(addProxyRequest);
     }

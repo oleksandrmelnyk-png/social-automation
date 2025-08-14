@@ -7,17 +7,19 @@ import com.kayleighrichmond.social_automation.service.account.tiktok.builder.Tik
 import com.kayleighrichmond.social_automation.service.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
 import com.kayleighrichmond.social_automation.service.nst.NstBrowserClient;
-import com.kayleighrichmond.social_automation.service.nst.NstBrowserService;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileResponse;
-import com.kayleighrichmond.social_automation.service.nst.dto.StartBrowserResponse;
 import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
+import com.kayleighrichmond.social_automation.service.playwright.PlaywrightService;
+import com.kayleighrichmond.social_automation.service.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
 import com.kayleighrichmond.social_automation.type.Status;
 import com.kayleighrichmond.social_automation.web.dto.account.CreateAccountsRequest;
 import com.microsoft.playwright.*;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -43,10 +45,11 @@ public class TikTokCreatorFacade {
 
     private final TikTokService tikTokService;
 
-    private final NstBrowserService nstBrowserService;
-
     private final TikTokAccountBuilder tikTokAccountBuilder;
 
+    private final PlaywrightService playwrightService;
+
+    @Async
     public void processAccountCreation(CreateAccountsRequest createAccountsRequest) {
         List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountsRequest.getCountryCode(), 5, PageRequest.of(0, createAccountsRequest.getAmount()));
         List<TikTokAccount> tikTokAccounts = createTikTokAccountsWithProxies(proxies.subList(0, createAccountsRequest.getAmount()));
@@ -59,7 +62,11 @@ public class TikTokCreatorFacade {
                     TikTokAccount tikTokAccount = tikTokAccounts.get(createdCount++);
                     createAccountWithProxy(proxy, tikTokAccount);
                 }
-                catch (Exception e) {
+                catch (NstBrowserException e) {
+                    tikTokService.updateAllFromInProgressToFailed();
+                    throw new NstBrowserException("Nst browser exception occurred");
+                } catch (Exception e) {
+                    log.warn("Something went wrong: {}", e.getMessage());
                     tikTokService.updateAllFromInProgressToFailed();
                     throw new ServerException("Something went wrong with account registering");
                 }
@@ -67,41 +74,26 @@ public class TikTokCreatorFacade {
         }
     }
 
+    @SneakyThrows
     private void createAccountWithProxy(Proxy proxy, TikTokAccount tikTokAccount) {
-        StartBrowserResponse startBrowserResponse;
-        CreateProfileResponse profile;
+        CreateProfileResponse profile = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
+        PlaywrightDto playwrightDto =  playwrightService.initPlaywright(profile.getData().getProfileId());
+        Page page = playwrightDto.getPage();
+
         try {
-            profile = nstBrowserClient.createProfile(
-                    tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(),
-                    proxy
-            );
-            startBrowserResponse = nstBrowserClient.startBrowser(profile.getData().getProfileId());
-        } catch (NstBrowserException e) {
-            tikTokService.updateAllFromInProgressToFailed();
-            throw new NstBrowserException("Something went wrong with Nst browser");
-        }
-
-        Page page = null;
-        try (Playwright playwright = Playwright.create();
-             Browser browser = playwright.chromium().connectOverCDP(startBrowserResponse.getData().getWebSocketDebuggerUrl())
-        ) {
-            page = nstBrowserService.getContextPage(browser);
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
-
             registerAccount(tikTokAccount, page);
 
             proxyService.updateAccountsLinked(proxy.getId(), proxy.getAccountsLinked() + 1);
             tikTokAccount.setStatus(Status.CREATED);
             tikTokService.update(tikTokAccount);
 
-            page.close();
+            log.info("TikTok account successfully created by email {}", tikTokAccount.getEmail());
         } catch (NoMessagesReceivedException e) {
             nstBrowserClient.deleteBrowser(profile.getData().getProfileId());
             throw new NoMessagesReceivedException("Didn't receive message from mail service for " + tikTokAccount.getEmail());
         } finally {
-            if (page != null && !page.isClosed()) {
-                page.close();
-            }
+            playwrightDto.getAutoCloseables().forEach(AutoCloseable::close);
         }
     }
 
@@ -172,7 +164,7 @@ public class TikTokCreatorFacade {
             waitForAddAndClickOrSkip(page);
 
         } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
+            log.warn("Something went wrong: {}", e.getMessage());
             throw new ServerException("Something went wrong with account registering");
         }
     }

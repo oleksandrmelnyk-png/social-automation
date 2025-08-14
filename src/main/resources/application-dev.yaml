@@ -7,5 +7,8 @@ spring:
     password: supersecretpassword
     driver-class-name: org.postgresql.Driver
 nst-browser:
-  api-key: 7ffc59e4-8b42-4db8-b0c6-c996c4570360
+  host: localhost
+  port: 8000
+  api-key: f6e76125-1771-48d6-94de-1d03a685884d
   url: http://localhost:8000/api/v2
+  headless: true
