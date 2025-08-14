@@ -61,6 +61,7 @@ public class NstBrowserClient {
             response.close();
             return createProfileResponse;
         } catch (IOException e) {
+            log.error("NstBrowserException: {}", e.getMessage());
             throw new NstBrowserException("Couldn't create profile in Nst browser");
         }
     }
@@ -84,6 +85,7 @@ public class NstBrowserClient {
             response.close();
             return startBrowserResponse;
         } catch (IOException e) {
+            log.error("NstBrowserException: {}", e.getMessage());
             throw new NstBrowserException("Couldn't start Nst browser");
         }
     }
@@ -103,6 +105,7 @@ public class NstBrowserClient {
         try (Response response = client.newCall(request).execute()){
             okHttpHelper.buildResponseBodyOrThrow(response, "NstApi error: " + response.code() + " - " + response.message());
         } catch (IOException e) {
+            log.error("NstBrowserException: {}", e.getMessage());
             throw new NstBrowserException("Couldn't delete Nst profile");
         }
     }
