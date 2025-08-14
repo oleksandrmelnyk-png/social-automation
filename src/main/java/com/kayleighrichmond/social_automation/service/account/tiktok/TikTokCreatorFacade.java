@@ -95,8 +95,15 @@ public class TikTokCreatorFacade {
             nstBrowserClient.deleteBrowser(profile.getData().getProfileId());
             throw new NoMessagesReceivedException("Didn't receive message from mail service for " + tikTokAccount.getEmail());
         } finally {
-            playwrightDto.getAutoCloseables().forEach(AutoCloseable::close);
+            playwrightDto.getAutoCloseables().forEach(ac -> {
+                try {
+                    ac.close();
+                } catch (Exception e) {
+                    log.error("Failed to close resource", e);
+                }
+            });
         }
+
     }
 
     private void registerAccount(TikTokAccount tikTokAccount, Page page) {
