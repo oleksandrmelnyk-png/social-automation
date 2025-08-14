@@ -63,10 +63,11 @@ public class TikTokCreatorFacade {
                     createAccountWithProxy(proxy, tikTokAccount);
                 }
                 catch (NstBrowserException e) {
+                    log.error("NstBrowserException: {}", e.getMessage());
                     tikTokService.updateAllFromInProgressToFailed();
                     throw new NstBrowserException("Nst browser exception occurred");
                 } catch (Exception e) {
-                    log.warn("Something went wrong: {}", e.getMessage());
+                    log.error("Exception: {}", e.getMessage());
                     tikTokService.updateAllFromInProgressToFailed();
                     throw new ServerException("Something went wrong with account registering");
                 }
@@ -90,6 +91,7 @@ public class TikTokCreatorFacade {
 
             log.info("TikTok account successfully created by email {}", tikTokAccount.getEmail());
         } catch (NoMessagesReceivedException e) {
+            log.error("NoMessagesReceivedException: {}", e.getMessage());
             nstBrowserClient.deleteBrowser(profile.getData().getProfileId());
             throw new NoMessagesReceivedException("Didn't receive message from mail service for " + tikTokAccount.getEmail());
         } finally {
@@ -164,7 +166,7 @@ public class TikTokCreatorFacade {
             waitForAddAndClickOrSkip(page);
 
         } catch (InterruptedException e) {
-            log.warn("Something went wrong: {}", e.getMessage());
+            log.error("InterruptedException: {}", e.getMessage());
             throw new ServerException("Something went wrong with account registering");
         }
     }
