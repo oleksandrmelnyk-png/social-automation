@@ -7,8 +7,8 @@ spring:
     password: supersecretpassword
     driver-class-name: org.postgresql.Driver
 nst-browser:
-  host: docker-nstbrowserless_00-1
+  host: docker_nstbrowserless_00_1
   port: 8848
   api-key: f6e76125-1771-48d6-94de-1d03a685884d
-  url: http://docker-nstbrowserless_00-1:8848/api/v2
+  url: http://docker_nstbrowserless_00_1:8848/api/v2
   headless: false
