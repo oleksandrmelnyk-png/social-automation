@@ -2,13 +2,13 @@ spring:
   application:
     name: social-automation
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://postgres_kayleigh:5432/myapp_db
+    username: myapp_user
+    password: supersecretpassword
     driver-class-name: org.postgresql.Driver
 nst-browser:
-  host: ${APP_HOST}
+  host: 194.163.164.118
   port: 8848
-  api-key: ${NST_BROWSER_API_KEY}
-  url: ${NST_API_URL}
+  api-key: f6e76125-1771-48d6-94de-1d03a685884d
+  url: http://194.163.164.118:8848/api/v2
   headless: false
