@@ -69,6 +69,7 @@ public class ProxyService {
         Optional.ofNullable(updateProxyRequest.getCountryCode()).ifPresent(proxy::setCountryCode);
         Optional.ofNullable(updateProxyRequest.getPort()).ifPresent(proxy::setPort);
         Optional.ofNullable(updateProxyRequest.getAccountsLinked()).ifPresent(proxy::setAccountsLinked);
+        Optional.ofNullable(updateProxyRequest.getRebootLink()).ifPresent(proxy::setRebootLink);
 
         proxyRepository.save(proxy);
     }

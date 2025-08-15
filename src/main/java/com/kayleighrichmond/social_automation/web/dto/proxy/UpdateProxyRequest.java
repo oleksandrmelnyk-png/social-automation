@@ -21,4 +21,6 @@ public class UpdateProxyRequest {
 
     private Integer accountsLinked;
 
+    private String rebootLink;
+
 }
