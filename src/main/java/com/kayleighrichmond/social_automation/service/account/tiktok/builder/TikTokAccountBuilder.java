@@ -36,13 +36,13 @@ public class TikTokAccountBuilder {
                 .countryCode(proxy.getCountryCode())
                 .dob(randomUser.getDob())
                 .username(uniqueUsername)
-                .accountLink(TIK_TOK_BASE_URL + "@" + randomUser.getLogin().getUsername())
+                .accountLink(TIK_TOK_BASE_URL + "@" + uniqueUsername)
                 .build();
     }
 
     public String generateUniqueUsername(String basicUsername) {
         String uuid = UUID.randomUUID().toString();
-        String uniqueValue = uuid.substring(0, uuid.indexOf('-'));
+        String uniqueValue = uuid.substring(0, uuid.indexOf('-') / 2);
 
         return  basicUsername + uniqueValue;
     }

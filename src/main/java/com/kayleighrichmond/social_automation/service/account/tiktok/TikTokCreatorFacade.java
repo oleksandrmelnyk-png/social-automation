@@ -8,6 +8,7 @@ import com.kayleighrichmond.social_automation.service.account.tiktok.builder.Tik
 import com.kayleighrichmond.social_automation.service.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.service.nst.NstBrowserClient;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileResponse;
+import com.kayleighrichmond.social_automation.service.nst.dto.StartBrowserResponse;
 import com.kayleighrichmond.social_automation.service.playwright.PlaywrightService;
 import com.kayleighrichmond.social_automation.service.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
@@ -69,7 +70,9 @@ public class TikTokCreatorFacade {
 
     private void createAccountWithProxy(Proxy proxy, TikTokAccount tikTokAccount) {
         CreateProfileResponse profile = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
-        PlaywrightDto playwrightDto = playwrightService.initPlaywright(profile.getData().getProfileId());
+//        PlaywrightDto playwrightDto = playwrightService.initPlaywright(profile.getData().getProfileId());
+        StartBrowserResponse startBrowserResponse = nstBrowserClient.startBrowser(profile.getData().getProfileId());
+        PlaywrightDto playwrightDto = playwrightService.initPlaywrightWithCdp(startBrowserResponse.getData().getWebSocketDebuggerUrl());
 
         Page page = playwrightDto.getPage();
 
