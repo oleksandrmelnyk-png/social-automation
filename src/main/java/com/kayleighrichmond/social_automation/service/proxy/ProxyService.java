@@ -6,6 +6,7 @@ import com.kayleighrichmond.social_automation.service.ip_api.IpApiClient;
 import com.kayleighrichmond.social_automation.service.ip_api.dto.GetProxyAddressResponse;
 import com.kayleighrichmond.social_automation.service.proxy.exception.NoProxiesAvailableException;
 import com.kayleighrichmond.social_automation.service.proxy.exception.ProxyAlreadyExistsException;
+import com.kayleighrichmond.social_automation.service.proxy.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
 import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,10 @@ public class ProxyService {
 
     public List<Proxy> findAll() {
         return proxyRepository.findAll();
+    }
+
+    public List<Proxy> findAllByCountryCode(String countryCode) {
+        return proxyRepository.findAllByCountryCode(countryCode);
     }
 
     public List<Proxy> findAllVerifiedByCountryCodeAndAccountsLinked(String countryCode, int accountsLinkedMax, int accountCount) {
@@ -70,7 +75,7 @@ public class ProxyService {
 
     private Proxy findByIdOrThrow(String id) {
         return proxyRepository.findById(id)
-                .orElseThrow(() -> new ProxyAlreadyExistsException("Cannot find proxy by id " + id));
+                .orElseThrow(() -> new ProxyNotFoundException("Cannot find proxy by id " + id));
     }
 
     private void throwIfProxyExistsByUsername(String username) {

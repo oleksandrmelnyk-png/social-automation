@@ -25,4 +25,6 @@ public interface ProxyRepository extends JpaRepository<Proxy, String> {
     );
 
     Optional<Proxy> findByUsername(String username);
+
+    List<Proxy> findAllByCountryCode(String countryCode);
 }

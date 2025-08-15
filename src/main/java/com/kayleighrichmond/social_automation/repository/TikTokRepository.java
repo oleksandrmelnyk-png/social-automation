@@ -12,8 +12,6 @@ public interface TikTokRepository extends JpaRepository<TikTokAccount, String> {
 
     Optional<TikTokAccount> findByStatus(Status status);
 
-    Optional<TikTokAccount> findByEmail(String email);
-
     List<TikTokAccount> findAllByStatus(Status status);
 
     void deleteAllByStatus(Status status);

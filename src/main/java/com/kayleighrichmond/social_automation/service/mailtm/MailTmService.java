@@ -3,6 +3,7 @@ package com.kayleighrichmond.social_automation.service.mailtm;
 import com.kayleighrichmond.social_automation.service.mailtm.dto.GetDomainsResponse;
 import com.kayleighrichmond.social_automation.service.mailtm.dto.GetMessagesResponse;
 import com.kayleighrichmond.social_automation.service.mailtm.dto.GetTokenResponse;
+import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class MailTmService {
 
     public String getCodeFromGeneratedEmail(String address, String password) {
         GetTokenResponse token = mailTmClient.getToken(address, password);
-        GetMessagesResponse getMessagesResponse = mailTmClient.waitForMessages(token.getToken());
+        GetMessagesResponse getMessagesResponse = waitForMessages(token.getToken());
 
         return retrieveCodeFromMessage(getMessagesResponse);
     }
@@ -46,6 +47,30 @@ public class MailTmService {
         }
 
         throw new IllegalArgumentException("No code in message");
+    }
+
+    public GetMessagesResponse waitForMessages(String token) {
+        int attempts = 0;
+
+        for (int i = 0; i < 10; i++) {
+            GetMessagesResponse messages = mailTmClient.getMessages(token);
+            if (messages.getTotalItems() == 0) {
+                try {
+                    attempts++;
+                    Thread.sleep(3 * 1500);
+
+                    log.info("Waiting for email message... " + attempts + "/" + 10);
+
+                    continue;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(e);
+                }
+            }
+            return messages;
+        }
+
+        throw new NoMessagesReceivedException("No messages received for token: " + token);
     }
 
 }

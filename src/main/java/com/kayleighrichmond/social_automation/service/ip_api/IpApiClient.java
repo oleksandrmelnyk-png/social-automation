@@ -24,6 +24,8 @@ public class IpApiClient {
 
     private final ObjectMapper objectMapper;
 
+    private final String IP_API_BASE_URL = "http://ip-api.com/json";
+
     public GetProxyAddressResponse getProxyAddress(Proxy proxy) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .proxy(new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxy.getHost(), proxy.getPort())))
@@ -33,7 +35,7 @@ public class IpApiClient {
                 .build();
 
         Request request = new Request.Builder()
-                .url("http://ip-api.com/json")
+                .url(IP_API_BASE_URL)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -43,5 +45,4 @@ public class IpApiClient {
             throw new RuntimeException(e);
         }
     }
-
 }

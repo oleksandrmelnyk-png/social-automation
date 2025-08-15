@@ -6,7 +6,6 @@ import com.kayleighrichmond.social_automation.service.mailtm.dto.GetDomainsRespo
 import com.kayleighrichmond.social_automation.service.mailtm.dto.GetMessagesResponse;
 import com.kayleighrichmond.social_automation.service.mailtm.dto.GetTokenResponse;
 import com.kayleighrichmond.social_automation.service.mailtm.exception.NoDomainFoundException;
-import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
 import com.kayleighrichmond.social_automation.service.okhttp.OkHttpHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +23,13 @@ public class MailTmClient {
 
     private final OkHttpHelper okHttpHelper;
 
-    private static final String MAIL_TM_API = "https://api.mail.tm";
+    private static final String MAIL_TM_BASE_URL= "https://api.mail.tm";
 
     public void createAccount(String address, String password) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-            String createAccountUrl = MAIL_TM_API + "/accounts";
+            String createAccountUrl = MAIL_TM_BASE_URL + "/accounts";
             AccountRequest accountRequest = AccountRequest.builder()
                     .address(address)
                     .password(password)
@@ -56,7 +55,7 @@ public class MailTmClient {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-            String createAccountUrl = MAIL_TM_API + "/token";
+            String createAccountUrl = MAIL_TM_BASE_URL + "/token";
             AccountRequest accountRequest = AccountRequest.builder()
                     .address(address)
                     .password(password)
@@ -81,7 +80,7 @@ public class MailTmClient {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-            String createAccountUrl = MAIL_TM_API + "/domains";
+            String createAccountUrl = MAIL_TM_BASE_URL + "/domains";
             Request request = new Request.Builder()
                     .url(createAccountUrl)
                     .get()
@@ -102,35 +101,11 @@ public class MailTmClient {
         }
     }
 
-    public GetMessagesResponse waitForMessages(String token) {
-        int attempts = 0;
-
-        for (int i = 0; i < 10; i++) {
-            GetMessagesResponse messages = getMessages(token);
-            if (messages.getTotalItems() == 0) {
-                try {
-                    attempts++;
-                    Thread.sleep(3 * 1500);
-
-                    log.info("Waiting for email message... " + attempts + "/" + 10);
-
-                    continue;
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException(e);
-                }
-            }
-            return messages;
-        }
-
-        throw new NoMessagesReceivedException("No messages received for token: " + token);
-    }
-
-    private GetMessagesResponse getMessages(String token) {
+    public GetMessagesResponse getMessages(String token) {
         try {
             OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-            String createAccountUrl = MAIL_TM_API + "/messages";
+            String createAccountUrl = MAIL_TM_BASE_URL + "/messages";
             Request request = new Request.Builder()
                     .url(createAccountUrl)
                     .header("Authorization", "Bearer " + token)

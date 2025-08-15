@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.Month;
 
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TikTokSelectors {
 

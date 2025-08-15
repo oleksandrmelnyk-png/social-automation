@@ -4,6 +4,6 @@ public interface Validator {
 
     void validate(Object target);
 
-    boolean verifyArgument(Class<?> clazz);
+    void verifyArgument(Class<?> clazz) throws IllegalStateException;
 
 }

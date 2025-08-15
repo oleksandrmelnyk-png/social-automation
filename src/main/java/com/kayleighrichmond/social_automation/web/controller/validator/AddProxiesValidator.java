@@ -18,12 +18,9 @@ public class AddProxiesValidator implements Validator {
 
     @Override
     public void validate(Object target) {
-        boolean verified = verifyArgument(target.getClass());
-        if (!verified) {
-            throw new IllegalArgumentException("AddProxyRequest required");
-        }
-
+        verifyArgument(target.getClass());
         AddProxyRequest addProxyRequest = (AddProxyRequest) target;
+
         List<AddProxyRequest.ProxyRequest> proxies = addProxyRequest.getProxies();
 
         for (AddProxyRequest.ProxyRequest proxy : proxies) {
@@ -37,7 +34,10 @@ public class AddProxiesValidator implements Validator {
     }
 
     @Override
-    public boolean verifyArgument(Class<?> clazz) {
-        return clazz.equals(AddProxyRequest.class);
+    public void verifyArgument(Class<?> clazz) {
+        boolean verified = clazz.equals(AddProxyRequest.class);
+        if (!verified) {
+            throw new IllegalArgumentException("AddProxyRequest required");
+        }
     }
 }

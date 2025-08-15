@@ -3,12 +3,11 @@ package com.kayleighrichmond.social_automation.service.account.tiktok;
 import com.kayleighrichmond.social_automation.exception.ServerException;
 import com.kayleighrichmond.social_automation.model.Proxy;
 import com.kayleighrichmond.social_automation.model.TikTokAccount;
-import com.kayleighrichmond.social_automation.service.account.exception.CaptchaAppearedException;
+import com.kayleighrichmond.social_automation.service.account.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.service.account.tiktok.builder.TikTokAccountBuilder;
 import com.kayleighrichmond.social_automation.service.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.service.nst.NstBrowserClient;
 import com.kayleighrichmond.social_automation.service.nst.dto.CreateProfileResponse;
-import com.kayleighrichmond.social_automation.service.nst.dto.StartBrowserResponse;
 import com.kayleighrichmond.social_automation.service.playwright.PlaywrightService;
 import com.kayleighrichmond.social_automation.service.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
@@ -19,6 +18,7 @@ import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountReques
 import com.microsoft.playwright.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -49,13 +49,16 @@ public class TikTokCreatorFacade {
 
     private final PlaywrightService playwrightService;
 
+    @Value("${proxy.accounts-per-proxy}")
+    private int ACCOUNTS_PER_PROXY;
+
     public void processAccountCreation(CreateAccountRequest createAccountRequest) {
-        List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountRequest.getCountryCode(), 5, createAccountRequest.getAmount());
+        List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountRequest.getCountryCode(), ACCOUNTS_PER_PROXY, createAccountRequest.getAmount());
         List<TikTokAccount> tikTokAccounts = createTikTokAccountsWithProxies(proxies.subList(0, createAccountRequest.getAmount()));
 
         int createdCount = 0;
         for (Proxy proxy : proxies) {
-            while (proxy.getAccountsLinked() < 5 && createdCount < createAccountRequest.getAmount()) {
+            while (proxy.getAccountsLinked() < ACCOUNTS_PER_PROXY && createdCount < createAccountRequest.getAmount()) {
                 try {
                     TikTokAccount tikTokAccount = tikTokAccounts.get(createdCount++);
                     createAccountWithProxy(proxy, tikTokAccount);
@@ -144,7 +147,7 @@ public class TikTokCreatorFacade {
             page.click(SEND_CODE_BUTTON);
 
             waitForSelectorAndAct(page, CAPTCHA_DIV, locator -> {
-                throw new CaptchaAppearedException("While signing up captcha appeared");
+                throw new CaptchaException("While signing up captcha appeared");
             });
 
             page.waitForSelector(RESEND_CODE_TIMEOUT);

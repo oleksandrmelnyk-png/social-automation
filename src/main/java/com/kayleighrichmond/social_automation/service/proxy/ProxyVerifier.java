@@ -1,6 +1,7 @@
 package com.kayleighrichmond.social_automation.service.proxy;
 
 import com.kayleighrichmond.social_automation.model.Proxy;
+import com.kayleighrichmond.social_automation.service.proxy.exception.ProxyRotationFailed;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -33,7 +34,7 @@ public class ProxyVerifier {
 
                 Thread.sleep(1500);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IllegalArgumentException e) {
             return false;
         }
         return false;
@@ -62,7 +63,11 @@ public class ProxyVerifier {
         }
     }
 
-    private void changeProxyIp(String rebootLink) {
+    public void changeProxyIp(String rebootLink) {
+        if (rebootLink == null) {
+            throw new IllegalArgumentException("RebootLink cannot be null");
+        }
+
         OkHttpClient client = new OkHttpClient.Builder().build();
         Request request = new Request.Builder()
                 .url(rebootLink)
@@ -70,7 +75,8 @@ public class ProxyVerifier {
 
         try (Response ignored = client.newCall(request).execute()) {
         } catch (IOException e) {
-            log.warn("Failed rebooting proxy ip {}", rebootLink);
+            log.warn("Failed proxy rotation: {}", e.getMessage());
+            throw new ProxyRotationFailed("Failed proxy rotation ip " + rebootLink);
         }
     }
 }
