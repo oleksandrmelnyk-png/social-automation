@@ -70,9 +70,7 @@ public class TikTokCreatorFacade {
 
     private void createAccountWithProxy(Proxy proxy, TikTokAccount tikTokAccount) {
         CreateProfileResponse profile = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
-//        PlaywrightDto playwrightDto = playwrightService.initPlaywright(profile.getData().getProfileId());
-        StartBrowserResponse startBrowserResponse = nstBrowserClient.startBrowser(profile.getData().getProfileId());
-        PlaywrightDto playwrightDto = playwrightService.initPlaywrightWithCdp(startBrowserResponse.getData().getWebSocketDebuggerUrl());
+        PlaywrightDto playwrightDto = playwrightService.initPlaywright(profile.getData().getProfileId());
 
         Page page = playwrightDto.getPage();
 
