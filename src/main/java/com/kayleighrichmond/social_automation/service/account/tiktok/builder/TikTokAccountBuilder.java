@@ -9,6 +9,8 @@ import com.kayleighrichmond.social_automation.type.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 import static com.kayleighrichmond.social_automation.service.account.tiktok.TikTokConstants.TIK_TOK_BASE_URL;
 
 @Component
@@ -23,6 +25,7 @@ public class TikTokAccountBuilder {
         RandomUserResponse.RandomResult randomUser = randomUserClient.getRandomUser();
         String password = "Qwerty1234@";
         String address = mailTmService.createAddressWithDomainOncePerSecond(randomUser.getEmail(), password);
+        String uniqueUsername = generateUniqueUsername(randomUser.getLogin().getUsername());
 
         return TikTokAccount.builder()
                 .email(address)
@@ -32,8 +35,15 @@ public class TikTokAccountBuilder {
                 .status(Status.IN_PROGRESS)
                 .countryCode(proxy.getCountryCode())
                 .dob(randomUser.getDob())
-                .username(randomUser.getLogin().getUsername())
+                .username(uniqueUsername)
                 .accountLink(TIK_TOK_BASE_URL + "@" + randomUser.getLogin().getUsername())
                 .build();
+    }
+
+    public String generateUniqueUsername(String basicUsername) {
+        String uuid = UUID.randomUUID().toString();
+        String uniqueValue = uuid.substring(0, uuid.indexOf('-'));
+
+        return  basicUsername + uniqueValue;
     }
 }
