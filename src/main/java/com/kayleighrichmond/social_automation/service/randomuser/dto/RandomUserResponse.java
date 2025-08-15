@@ -22,7 +22,17 @@ public class RandomUserResponse {
 
         private String email;
 
+        private Login login;
+
         private Dob dob;
+
+        @Data
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class Login {
+
+            private String username;
+
+        }
 
     }
 }

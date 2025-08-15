@@ -1,12 +1,15 @@
 package com.kayleighrichmond.social_automation.exception;
 
+import com.kayleighrichmond.social_automation.service.account.exception.AccountsCurrentlyCreatingException;
 import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
 import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.proxy.exception.NoProxiesAvailableException;
+import com.kayleighrichmond.social_automation.service.proxy.exception.NotEnoughProxiesException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class MainExceptionHandler {
@@ -46,5 +49,17 @@ public class MainExceptionHandler {
                 .body(e.getMessage());
     }
 
+    @ExceptionHandler(NotEnoughProxiesException.class)
+    public ResponseEntity<String> handleNotEnoughProxiesException(NotEnoughProxiesException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(500))
+                .body(e.getMessage());
+    }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(e.getMessage());
+    }
 }

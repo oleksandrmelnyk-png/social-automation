@@ -1,16 +1,16 @@
 package com.kayleighrichmond.social_automation.service.account.tiktok;
 
-import com.kayleighrichmond.social_automation.exception.AccountNotFoundException;
-import com.kayleighrichmond.social_automation.exception.AccountsCurrentlyCreatingException;
+import com.kayleighrichmond.social_automation.service.account.exception.AccountNotFoundException;
+import com.kayleighrichmond.social_automation.service.account.exception.AccountsCurrentlyCreatingException;
 import com.kayleighrichmond.social_automation.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.repository.TikTokRepository;
 import com.kayleighrichmond.social_automation.type.Status;
+import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -18,13 +18,35 @@ public class TikTokService {
 
     private final TikTokRepository tikTokRepository;
 
-    public void save(TikTokAccount tikTokAccount) {
-        throwIfExistsByEmail(tikTokAccount.getEmail());
-        tikTokRepository.save(tikTokAccount);
+    public List<TikTokAccount> saveAll(List<TikTokAccount> tikTokAccounts) {
+        List<String> ids = tikTokAccounts.stream()
+                .map(TikTokAccount::getId)
+                .filter(Objects::nonNull)
+                .toList();
+
+        Set<String> existingIds = new HashSet<>(tikTokRepository.findAllByIdIn(ids)
+                .stream()
+                .map(TikTokAccount::getId)
+                .toList());
+
+        List<TikTokAccount> newAccounts = tikTokAccounts.stream()
+                .filter(acc -> acc.getId() == null || !existingIds.contains(acc.getId()))
+                .toList();
+
+        return tikTokRepository.saveAll(newAccounts);
     }
 
-    public void update(TikTokAccount tikTokAccount) {
-        throwIfNotExistsByEmail(tikTokAccount.getEmail());
+    public void update(String id, UpdateAccountRequest updateAccountRequest) {
+        TikTokAccount tikTokAccount = findByIdOrThrow(id);
+
+        Optional.ofNullable(updateAccountRequest.getName()).ifPresent(tikTokAccount::setName);
+        Optional.ofNullable(updateAccountRequest.getEmail()).ifPresent(tikTokAccount::setEmail);
+        Optional.ofNullable(updateAccountRequest.getPassword()).ifPresent(tikTokAccount::setPassword);
+        Optional.ofNullable(updateAccountRequest.getStatus()).ifPresent(tikTokAccount::setStatus);
+        Optional.ofNullable(updateAccountRequest.getDob()).ifPresent(tikTokAccount::setDob);
+        Optional.ofNullable(updateAccountRequest.getCountryCode()).ifPresent(tikTokAccount::setCountryCode);
+        Optional.ofNullable(updateAccountRequest.getProxy()).ifPresent(tikTokAccount::setProxy);
+
         tikTokRepository.save(tikTokAccount);
     }
 
@@ -34,6 +56,11 @@ public class TikTokService {
 
     public List<TikTokAccount> findAll() {
         return tikTokRepository.findAll();
+    }
+
+    @Transactional
+    public void deleteAllByStatus(Status status) {
+        tikTokRepository.deleteAllByStatus(status);
     }
 
     @Transactional
@@ -54,15 +81,8 @@ public class TikTokService {
         }
     }
 
-    private void throwIfExistsByEmail(String email) {
-        tikTokRepository.findByEmail(email)
-                .ifPresent((tikTokAccount) -> {
-                    throw new AccountNotFoundException("Not found tik tok account by email " + email);
-                });
-    }
-
-    private void throwIfNotExistsByEmail(String email) {
-         tikTokRepository.findByEmail(email)
-                .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by email " + email));
+    private TikTokAccount findByIdOrThrow(String id) {
+        return tikTokRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by id " + id));
     }
 }

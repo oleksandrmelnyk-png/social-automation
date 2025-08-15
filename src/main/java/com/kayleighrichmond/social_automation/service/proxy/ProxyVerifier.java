@@ -28,7 +28,6 @@ public class ProxyVerifier {
                 log.info("Trying to verify proxy {} ... {}", proxy.getUsername(), "%d/5".formatted(attempts++));
                 boolean validProxy = processProxyValidation(proxy);
                 if (validProxy) {
-                    proxy.setVerified(true);
                     return true;
                 }
 
@@ -69,7 +68,7 @@ public class ProxyVerifier {
                 .url(rebootLink)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response ignored = client.newCall(request).execute()) {
         } catch (IOException e) {
             log.warn("Failed rebooting proxy ip {}", rebootLink);
         }

@@ -42,12 +42,12 @@ services:
   nstbrowserless_00:
     image: nstbrowser/browserless:135-202505201700.v2
     environment:
-      TOKEN:
+      TOKEN: ${NST_TOKEN}
       VNC_PORT:
       VNC_PASSWORD:
     ports:
-      - "8000:8848"
-      - "6900:6900"
+      - "${NST_PORT}:8848"
+      - "${VNC_PORT}:6900"
     restart: unless-stopped
 
 volumes:

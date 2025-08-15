@@ -20,9 +20,6 @@ public class TikTokAccount {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Embedded
-    private Name name;
-
     @Column(unique = true)
     private String email;
 
@@ -31,8 +28,17 @@ public class TikTokAccount {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private String countryCode;
+
+    @Embedded
+    private Name name;
+
+    private String username;
+
     @Embedded
     private Dob dob;
+
+    private String accountLink;
 
     @ManyToOne
     @JoinColumn(name = "proxy_id")

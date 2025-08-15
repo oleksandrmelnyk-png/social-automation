@@ -1,10 +1,8 @@
 package com.kayleighrichmond.social_automation.service.playwright;
 
+import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.playwright.dto.PlaywrightDto;
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,32 +30,32 @@ public class PlaywrightService {
     private String NST_HOST;
 
     public PlaywrightDto initPlaywright(String browserProfileId) {
+        try {
+            String url = String.format(
+                    NST_BROWSER_URL_TEMPLATE,
+                    NST_HOST,
+                    NST_PORT, browserProfileId,
+                    NST_BROWSER_API_KEY,
+                    NST_HEADLESS,
+                    TRUE
+            );
+
+            log.info("Init playwright url: {}", url);
+
+            return initPlaywrightWithCdp(url);
+        } catch (PlaywrightException e) {
+            log.error("Error connecting to Nst Browser: {}", e.getMessage());
+            throw new NstBrowserException("Error connecting to Nst Browser. Possibly daily quote reached");
+        }
+    }
+
+    public PlaywrightDto initPlaywrightWithCdp(String cdpUrl) throws PlaywrightException {
         Playwright playwright = Playwright.create();
 
-        String url = String.format(
-                NST_BROWSER_URL_TEMPLATE,
-                NST_HOST,
-                NST_PORT, browserProfileId,
-                NST_BROWSER_API_KEY,
-                NST_HEADLESS,
-                TRUE
-        );
-
-        log.info("Init playwright url: {}", url);
-
-        Browser browser = playwright.chromium().connectOverCDP(url);
+        Browser browser = playwright.chromium().connectOverCDP(cdpUrl);
         BrowserContext context = browser.contexts().get(0);
         Page page = context.pages().get(0);
 
         return new PlaywrightDto(List.of(page, context, browser, playwright), page, context);
-    }
-
-    public void close(AutoCloseable autoCloseable) {
-        try {
-            autoCloseable.close();
-            Thread.sleep(5);
-        } catch (Exception e) {
-            log.error("Can't close. {}", e.getMessage());
-        }
     }
 }

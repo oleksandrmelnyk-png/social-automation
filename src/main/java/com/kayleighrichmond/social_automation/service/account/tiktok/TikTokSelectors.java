@@ -35,11 +35,13 @@ public class TikTokSelectors {
 
     static String SIGN_UP_BUTTON = "button:has-text('Sign up')";
 
-    static String SKIP = "text=Skip";
-
     static String SELECT_ADD = "div.webapp-pa-prompt_container__pa_button";
 
+    static String CAPTCHA_DIV = "#captcha-verify-container-main-page";
+
     static String LANGUAGE_SELECT = "select.tiktok-vm0biq-SelectFormContainer";
+
+    static String USERNAME_INPUT = "input[name='new-username']";
 
     static String selectMonth(Month month) {
         return "div[role='option'] >> text=%s".formatted(month.name().charAt(0) + month.name().substring(1).toLowerCase());
