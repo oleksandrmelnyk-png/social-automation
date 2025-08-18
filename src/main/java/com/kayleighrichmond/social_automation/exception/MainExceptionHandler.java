@@ -1,10 +1,11 @@
 package com.kayleighrichmond.social_automation.exception;
 
-import com.kayleighrichmond.social_automation.service.account.exception.AccountsCurrentlyCreatingException;
-import com.kayleighrichmond.social_automation.service.mailtm.exception.NoMessagesReceivedException;
-import com.kayleighrichmond.social_automation.service.nst.exception.NstBrowserException;
-import com.kayleighrichmond.social_automation.service.proxy.exception.NoProxiesAvailableException;
-import com.kayleighrichmond.social_automation.service.proxy.exception.NotEnoughProxiesException;
+import com.kayleighrichmond.social_automation.service.api.account.exception.AccountsCurrentlyCreatingException;
+import com.kayleighrichmond.social_automation.service.client.mailtm.exception.NoMessagesReceivedException;
+import com.kayleighrichmond.social_automation.service.client.nst.exception.NstBrowserException;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.NoProxiesAvailableException;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.NotEnoughProxiesException;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotVerifiedException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,4 +63,12 @@ public class MainExceptionHandler {
                 .status(HttpStatusCode.valueOf(400))
                 .body(e.getMessage());
     }
+
+    @ExceptionHandler(ProxyNotVerifiedException.class)
+    public ResponseEntity<String> handleProxyNotVerifiedException(ProxyNotVerifiedException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(e.getMessage());
+    }
+
 }

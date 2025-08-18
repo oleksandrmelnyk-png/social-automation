@@ -7,6 +7,6 @@ spring:
 nst-browser:
   host: localhost
   port: 8848
-  api-key: 60f2f27a-8003-46df-b64b-3a466f352917
+  api-key: de2bc73d-8c37-4762-a5a8-cc2ebf0138df
   url: http://localhost:8848/api/v2
   headless: false

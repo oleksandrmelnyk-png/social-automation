@@ -1,9 +1,9 @@
 package com.kayleighrichmond.social_automation.web.dto.tiktok;
 
-import com.kayleighrichmond.social_automation.model.Proxy;
-import com.kayleighrichmond.social_automation.service.randomuser.dto.Dob;
-import com.kayleighrichmond.social_automation.service.randomuser.dto.Name;
-import com.kayleighrichmond.social_automation.type.Status;
+import com.kayleighrichmond.social_automation.domain.entity.Proxy;
+import com.kayleighrichmond.social_automation.domain.entity.account.embedded.Dob;
+import com.kayleighrichmond.social_automation.domain.entity.account.embedded.Name;
+import com.kayleighrichmond.social_automation.domain.type.Status;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,6 +18,8 @@ public class UpdateAccountRequest {
     private String password;
 
     private Status status;
+
+    private String executionMessage;
 
     private Dob dob;
 

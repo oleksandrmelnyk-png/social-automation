@@ -2,7 +2,7 @@ spring:
   application:
     name: social-automation
   profiles:
-    active: prod
+    active: dev-nst-docker
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -10,5 +10,7 @@ spring:
 server:
   servlet:
     context-path: /api
-proxy:
-  accounts-per-proxy: 5
+app:
+  props:
+    accounts-per-proxy: 5
+    accounts-password: Qwerty1234@

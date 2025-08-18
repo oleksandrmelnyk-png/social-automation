@@ -1,15 +1,17 @@
 package com.kayleighrichmond.social_automation.web.controller.validator;
 
-import com.kayleighrichmond.social_automation.model.Proxy;
-import com.kayleighrichmond.social_automation.service.proxy.ProxyMapper;
-import com.kayleighrichmond.social_automation.service.proxy.ProxyVerifier;
-import com.kayleighrichmond.social_automation.service.proxy.exception.ProxyNotVerifiedException;
+import com.kayleighrichmond.social_automation.domain.entity.Proxy;
+import com.kayleighrichmond.social_automation.service.api.proxy.mapper.ProxyMapper;
+import com.kayleighrichmond.social_automation.service.api.proxy.ProxyVerifier;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotVerifiedException;
 import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AddProxiesValidator implements Validator {
@@ -28,13 +30,14 @@ public class AddProxiesValidator implements Validator {
             boolean verifiedProxy = proxyVerifier.verifyProxy(mappedProxy, false);
 
             if (!verifiedProxy) {
-                throw new ProxyNotVerifiedException("Proxy %s not verified".formatted(proxy));
+                log.warn("Proxy {} not verified", proxy);
+                throw new ProxyNotVerifiedException("Proxy %s has not verified".formatted(proxy.getUsername()));
             }
         }
     }
 
     @Override
-    public void verifyArgument(Class<?> clazz) {
+    public void verifyArgument(Class<?> clazz) throws IllegalArgumentException {
         boolean verified = clazz.equals(AddProxyRequest.class);
         if (!verified) {
             throw new IllegalArgumentException("AddProxyRequest required");

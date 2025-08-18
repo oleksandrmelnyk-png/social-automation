@@ -1,0 +1,92 @@
+package com.kayleighrichmond.social_automation.service.api.account.tiktok;
+
+import com.kayleighrichmond.social_automation.service.api.account.exception.AccountNotFoundException;
+import com.kayleighrichmond.social_automation.service.api.account.exception.AccountsCurrentlyCreatingException;
+import com.kayleighrichmond.social_automation.domain.entity.account.TikTokAccount;
+import com.kayleighrichmond.social_automation.domain.repository.TikTokRepository;
+import com.kayleighrichmond.social_automation.domain.type.Status;
+import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class TikTokService {
+
+    private final TikTokRepository tikTokRepository;
+
+    public List<TikTokAccount> saveAll(List<TikTokAccount> tikTokAccounts) {
+        throwIfAccountsInProgressExists();
+        return tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
+    }
+
+    public void update(String id, UpdateAccountRequest updateAccountRequest) {
+        TikTokAccount tikTokAccount = findByIdOrThrow(id);
+
+        Optional.ofNullable(updateAccountRequest.getName()).ifPresent(tikTokAccount::setName);
+        Optional.ofNullable(updateAccountRequest.getEmail()).ifPresent(tikTokAccount::setEmail);
+        Optional.ofNullable(updateAccountRequest.getPassword()).ifPresent(tikTokAccount::setPassword);
+        Optional.ofNullable(updateAccountRequest.getStatus()).ifPresent(tikTokAccount::setStatus);
+        Optional.ofNullable(updateAccountRequest.getDob()).ifPresent(tikTokAccount::setDob);
+        Optional.ofNullable(updateAccountRequest.getCountryCode()).ifPresent(tikTokAccount::setCountryCode);
+        Optional.ofNullable(updateAccountRequest.getProxy()).ifPresent(tikTokAccount::setProxy);
+        Optional.ofNullable(updateAccountRequest.getExecutionMessage()).ifPresent(tikTokAccount::setExecutionMessage);
+
+        tikTokRepository.save(tikTokAccount);
+    }
+
+    public List<TikTokAccount> findAll() {
+        return tikTokRepository.findAll();
+    }
+
+    public List<TikTokAccount> findAllByStatus(Status status) {
+        return tikTokRepository.findAllByStatus(status);
+    }
+
+    public void deleteAllByStatus(Status status) {
+        tikTokRepository.deleteAllByStatus(status);
+    }
+
+    @Transactional
+    public void updateAllFromInProgressToFailed(String executionMessage) {
+        List<TikTokAccount> allTikTokAccountsInProgress = findAllByStatus(Status.IN_PROGRESS);
+
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setExecutionMessage(executionMessage);
+        }
+
+        tikTokRepository.saveAll(allTikTokAccountsInProgress);
+    }
+
+    private List<TikTokAccount> retrieveNotExistingAccounts(List<TikTokAccount> tikTokAccounts) {
+        List<String> emails = tikTokAccounts.stream()
+                .map(TikTokAccount::getEmail)
+                .filter(Objects::nonNull)
+                .toList();
+
+        Set<String> existingEmails = new HashSet<>(tikTokRepository.findAllByEmailIn(emails)
+                .stream()
+                .map(TikTokAccount::getEmail)
+                .toList());
+
+        return tikTokAccounts.stream()
+                .filter(acc -> !existingEmails.contains(acc.getEmail()))
+                .toList();
+    }
+
+    private void throwIfAccountsInProgressExists() {
+        Optional<TikTokAccount> tikTokAccount = tikTokRepository.findByStatus(Status.IN_PROGRESS);
+        if (tikTokAccount.isPresent()) {
+            throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
+        }
+    }
+
+    private TikTokAccount findByIdOrThrow(String id) {
+        return tikTokRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by id " + id));
+    }
+}

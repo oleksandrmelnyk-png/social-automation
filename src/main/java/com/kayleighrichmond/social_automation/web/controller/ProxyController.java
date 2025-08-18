@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.web.controller;
 
-import com.kayleighrichmond.social_automation.model.Proxy;
-import com.kayleighrichmond.social_automation.service.proxy.ProxyService;
+import com.kayleighrichmond.social_automation.domain.entity.Proxy;
+import com.kayleighrichmond.social_automation.service.api.proxy.ProxyService;
 import com.kayleighrichmond.social_automation.web.controller.validator.AddProxiesValidator;
 import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
 import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
@@ -21,13 +21,13 @@ public class ProxyController {
 
     private final AddProxiesValidator addProxiesValidator;
 
-    @PostMapping("/add")
+    @PostMapping("/all")
     public void addProxies(@Valid @RequestBody AddProxyRequest addProxyRequest) {
         addProxiesValidator.validate(addProxyRequest);
         proxyService.saveAll(addProxyRequest);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Proxy>> findAll() {
         return ResponseEntity.ok(proxyService.findAll());
     }
