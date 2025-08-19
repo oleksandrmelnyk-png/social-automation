@@ -8,10 +8,18 @@ import org.springframework.stereotype.Service;
 import java.util.function.Consumer;
 
 @Service
-public class PlaywrightService {
+public class PlaywrightHelper {
 
     public void waitForSelectorAndAct(Page page, String selector, Consumer<Locator> consumer) {
         Locator locator = page.locator(selector);
+        boolean appeared = waitForSelector(locator);
+
+        if (appeared) {
+            consumer.accept(locator);
+        }
+    }
+
+    public boolean waitForSelector(Locator locator) {
         boolean appeared;
 
         try {
@@ -21,8 +29,6 @@ public class PlaywrightService {
             appeared = false;
         }
 
-        if (appeared) {
-            consumer.accept(locator);
-        }
+        return appeared;
     }
 }

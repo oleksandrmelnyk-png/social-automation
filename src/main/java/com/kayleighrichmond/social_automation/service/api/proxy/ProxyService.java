@@ -8,8 +8,8 @@ import com.kayleighrichmond.social_automation.service.api.proxy.exception.NoProx
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyAlreadyExistsException;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.service.api.proxy.mapper.ProxyMapper;
-import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
-import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.AddProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.UpdateProxyRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

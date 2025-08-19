@@ -3,7 +3,7 @@ package com.kayleighrichmond.social_automation.web.controller.validator;
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyHelper;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.NotEnoughProxiesException;
-import com.kayleighrichmond.social_automation.web.dto.tiktok.CreateAccountsRequest;
+import com.kayleighrichmond.social_automation.web.controller.social.dto.CreateAccountsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

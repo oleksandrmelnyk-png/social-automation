@@ -4,7 +4,7 @@ import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyRotationFailed;
-import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.UpdateProxyRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

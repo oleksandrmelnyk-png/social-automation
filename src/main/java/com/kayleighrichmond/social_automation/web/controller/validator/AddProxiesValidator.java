@@ -4,7 +4,7 @@ import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.mapper.ProxyMapper;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyVerifier;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotVerifiedException;
-import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.AddProxyRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,6 @@ public class AddProxiesValidator implements Validator {
             boolean verifiedProxy = proxyVerifier.verifyProxy(mappedProxy, false);
 
             if (!verifiedProxy) {
-                log.warn("Proxy {} not verified", proxy);
                 throw new ProxyNotVerifiedException("Proxy %s has not verified".formatted(proxy.getUsername()));
             }
         }

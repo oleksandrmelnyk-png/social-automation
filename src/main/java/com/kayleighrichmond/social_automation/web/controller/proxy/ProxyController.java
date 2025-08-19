@@ -1,10 +1,10 @@
-package com.kayleighrichmond.social_automation.web.controller;
+package com.kayleighrichmond.social_automation.web.controller.proxy;
 
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyService;
 import com.kayleighrichmond.social_automation.web.controller.validator.AddProxiesValidator;
-import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
-import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.AddProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.UpdateProxyRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,4 +36,6 @@ public class ProxyController {
     public void update(@PathVariable String id, @RequestBody UpdateProxyRequest updateProxyRequest) {
         proxyService.update(id, updateProxyRequest);
     }
+
+    // TODO create endpoint for reverifying all proxies to avoid verification while accounts creation
 }

@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.web.dto.tiktok;
+package com.kayleighrichmond.social_automation.web.controller.tiktok.dto;
 
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.domain.entity.account.embedded.Dob;
@@ -26,5 +26,7 @@ public class UpdateAccountRequest {
     private String countryCode;
 
     private Proxy proxy;
+
+    private String nstProfileId;
 
 }

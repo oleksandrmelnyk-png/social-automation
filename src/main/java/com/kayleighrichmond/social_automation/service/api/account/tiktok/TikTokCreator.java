@@ -12,14 +12,14 @@ import com.kayleighrichmond.social_automation.service.client.mailtm.MailTmServic
 import com.kayleighrichmond.social_automation.service.client.nst.NstBrowserClient;
 import com.kayleighrichmond.social_automation.service.client.nst.dto.CreateProfileResponse;
 import com.kayleighrichmond.social_automation.service.http.PlaywrightInitializer;
-import com.kayleighrichmond.social_automation.service.client.playwright.PlaywrightService;
+import com.kayleighrichmond.social_automation.service.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.service.client.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyService;
 import com.kayleighrichmond.social_automation.domain.type.Platform;
 import com.kayleighrichmond.social_automation.domain.type.Status;
-import com.kayleighrichmond.social_automation.web.dto.tiktok.CreateAccountsRequest;
-import com.kayleighrichmond.social_automation.web.dto.proxy.UpdateProxyRequest;
-import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountRequest;
+import com.kayleighrichmond.social_automation.web.controller.social.dto.CreateAccountsRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.UpdateProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.tiktok.dto.UpdateAccountRequest;
 import com.microsoft.playwright.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +31,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
+import static com.kayleighrichmond.social_automation.service.api.account.WaitHelper.waitRandomlyInRange;
+import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokSelectors.*;
 
 @Slf4j
@@ -52,11 +54,9 @@ public class TikTokCreator implements AccountCreator {
 
     private final PlaywrightInitializer playwrightInitializer;
 
-    private final PlaywrightService playwrightService;
+    private final PlaywrightHelper playwrightHelper;
 
     private final AppProps appProps;
-
-    private static final String TIKTOK_SIGN_UP_BROWSER_URL = "https://www.google.com/search?q=tiktok+sign+up";
 
     @Override
     public void processAccountCreation(CreateAccountsRequest createAccountsRequest) {
@@ -70,11 +70,24 @@ public class TikTokCreator implements AccountCreator {
             TikTokAccount tikTokAccount = savedTikTokAccounts.get(createdCount);
             while (proxy.getAccountsLinked() < appProps.getAccountsPerProxy() && createdCount < createAccountsRequest.getAmount()) {
                 try {
-                    createAccountWithProxy(proxy, tikTokAccount);
+                    CreateProfileResponse createProfileResponse = initializeNstAndStartAccountCreation(proxy, tikTokAccount);
+
+                    UpdateProxyRequest updateProxyRequest = UpdateProxyRequest.builder()
+                            .accountsLinked(proxy.getAccountsLinked() + 1)
+                            .build();
+                    proxyService.update(proxy.getId(), updateProxyRequest);
+
+                    UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
+                            .status(Status.CREATED)
+                            .nstProfileId(createProfileResponse.getData().getProfileId())
+                            .build();
+                    tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
+
+                    log.info("TikTok account successfully created by email {}", tikTokAccount.getEmail());
                 } catch (Exception e) {
                     tikTokAccountCreationExceptionHandler.handle(e, tikTokAccount);
                 } catch (Error e) {
-                    log.error("Exception: {}", e.getMessage());
+                    log.error(e.getMessage());
                     tikTokService.updateAllFromInProgressToFailed("Unexpected server exception");
                     throw new ServerException(e.getMessage());
                 }
@@ -83,23 +96,14 @@ public class TikTokCreator implements AccountCreator {
         }
     }
 
-    private void createAccountWithProxy(Proxy proxy, TikTokAccount tikTokAccount) {
-        CreateProfileResponse profile = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
-        PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(profile.getData().getProfileId());
+    private CreateProfileResponse initializeNstAndStartAccountCreation(Proxy proxy, TikTokAccount tikTokAccount) {
+        CreateProfileResponse createProfileResponse = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
+        PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(createProfileResponse.getData().getProfileId());
 
         Page page = playwrightDto.getPage();
 
         try {
-            log.info("Opening browser...");
-            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
-
-            log.info("Starting account creation...");
-            registerAccount(tikTokAccount, page);
-
-            proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(proxy.getAccountsLinked() + 1).build());
-            tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().status(Status.CREATED).build());
-
-            log.info("TikTok account successfully created by email {}", tikTokAccount.getEmail());
+            processAccountRegistration(tikTokAccount, page);
         } finally {
             playwrightDto.getAutoCloseables().forEach(ac -> {
                 try {
@@ -109,83 +113,89 @@ public class TikTokCreator implements AccountCreator {
                 }
             });
         }
+
+        return createProfileResponse;
     }
 
-    private void registerAccount(TikTokAccount tikTokAccount, Page page) {
+    private void processAccountRegistration(TikTokAccount tikTokAccount, Page page) {
         Random random = new Random();
         LocalDate dotDate = LocalDate.parse(tikTokAccount.getDob().getDate().substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         try {
+            log.info("Opening browser");
+            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
+
             page.waitForSelector(HOME_SIGN_UP);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 2000);
             page.click(HOME_SIGN_UP);
+            log.info("Starting account creation");
 
             page.waitForSelector(LANGUAGE_SELECT);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1100, 1900);
             page.selectOption(LANGUAGE_SELECT, "en");
 
-            page.waitForSelector(USE_PHONE_OR_EMAIL);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
-            page.click(USE_PHONE_OR_EMAIL);
+            page.waitForSelector(SIGN_UP_USE_PHONE_OR_EMAIL);
+            waitRandomlyInRange(1200, 2300);
+            page.click(SIGN_UP_USE_PHONE_OR_EMAIL);
 
             page.waitForSelector(SIGN_UP_WITH_EMAIL);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1700);
             page.click(SIGN_UP_WITH_EMAIL);
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1200, 1600);
             page.click(MONTH_DIV);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1200, 2000);
             page.click(selectMonth(Month.of(dotDate.getMonthValue())));
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1500);
             page.click(DAY_DIV);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1100, 1900);
             page.click(selectDay(dotDate.getDayOfMonth()));
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1200, 1800);
             page.click(YEAR_DIV);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1300);
             page.click(selectYear(Math.min(dotDate.getYear(), 2007)));
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
-            page.fill(EMAIL_INPUT, tikTokAccount.getEmail());
+            waitRandomlyInRange(1000, 1500);
+            page.fill(SIGN_UP_EMAIL_INPUT, tikTokAccount.getEmail());
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1700, 2500);
             page.fill(PASSWORD_INPUT, tikTokAccount.getPassword());
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(900, 1700);
             page.focus(SEND_CODE_BUTTON);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1300, 1700);
             page.click(SEND_CODE_BUTTON);
 
-            playwrightService.waitForSelectorAndAct(page, CAPTCHA_DIV, locator -> {
+            playwrightHelper.waitForSelectorAndAct(page, CAPTCHA_DIV, locator -> {
                 throw new CaptchaException("Captcha appeared");
             });
 
             page.waitForSelector(RESEND_CODE_TIMEOUT);
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1200, 1700);
             String codeFromGeneratedEmail = mailTmService.getCodeFromGeneratedEmail(tikTokAccount.getEmail(), tikTokAccount.getPassword());
 
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1300, 1900);
             page.fill(CODE_INPUT, codeFromGeneratedEmail);
 
-            Thread.sleep(random.nextInt(1000));
+            waitRandomlyInRange(1800, 2100);
             page.click(NEXT_BUTTON);
 
             page.waitForSelector(SIGN_UP_BUTTON);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1500);
 
             page.waitForSelector(USERNAME_INPUT);
             page.fill(USERNAME_INPUT, tikTokAccount.getUsername());
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1700);
 
             page.waitForSelector(SIGN_UP_BUTTON);
             page.click(SIGN_UP_BUTTON);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            waitRandomlyInRange(1000, 1500);
 
-            playwrightService.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
-            Thread.sleep(1200 + (long)(Math.random() * 1600));
+            playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
+            waitRandomlyInRange(1000, 1400);
 
         } catch (InterruptedException e) {
             log.error("InterruptedException: {}", e.getMessage());

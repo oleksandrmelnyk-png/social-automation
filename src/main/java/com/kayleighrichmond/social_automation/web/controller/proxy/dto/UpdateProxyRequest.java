@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.web.dto.proxy;
+package com.kayleighrichmond.social_automation.web.controller.proxy.dto;
 
 import lombok.Builder;
 import lombok.Data;

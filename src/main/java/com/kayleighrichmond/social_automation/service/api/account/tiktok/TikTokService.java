@@ -5,7 +5,7 @@ import com.kayleighrichmond.social_automation.service.api.account.exception.Acco
 import com.kayleighrichmond.social_automation.domain.entity.account.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.repository.TikTokRepository;
 import com.kayleighrichmond.social_automation.domain.type.Status;
-import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountRequest;
+import com.kayleighrichmond.social_automation.web.controller.tiktok.dto.UpdateAccountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +34,13 @@ public class TikTokService {
         Optional.ofNullable(updateAccountRequest.getCountryCode()).ifPresent(tikTokAccount::setCountryCode);
         Optional.ofNullable(updateAccountRequest.getProxy()).ifPresent(tikTokAccount::setProxy);
         Optional.ofNullable(updateAccountRequest.getExecutionMessage()).ifPresent(tikTokAccount::setExecutionMessage);
+        Optional.ofNullable(updateAccountRequest.getNstProfileId()).ifPresent(tikTokAccount::setNstProfileId);
 
         tikTokRepository.save(tikTokAccount);
+    }
+
+    public TikTokAccount findById(String id) {
+        return findByIdOrThrow(id);
     }
 
     public List<TikTokAccount> findAll() {

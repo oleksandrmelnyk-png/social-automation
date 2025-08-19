@@ -9,7 +9,7 @@ import com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokS
 import com.kayleighrichmond.social_automation.service.client.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.type.Status;
-import com.kayleighrichmond.social_automation.web.dto.tiktok.UpdateAccountRequest;
+import com.kayleighrichmond.social_automation.web.controller.tiktok.dto.UpdateAccountRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

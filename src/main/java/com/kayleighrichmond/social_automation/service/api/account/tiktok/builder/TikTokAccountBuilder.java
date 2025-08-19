@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokConstants.TIKTOK_BASE_URL;
+
 @Component
 @RequiredArgsConstructor
 public class TikTokAccountBuilder {
@@ -21,8 +23,6 @@ public class TikTokAccountBuilder {
     private final MailTmService mailTmService;
 
     private final AppProps appProps;
-
-    private static final String TIK_TOK_BASE_URL = "https://www.tiktok.com/";
 
     public TikTokAccount buildWithProxy(Proxy proxy) {
         RandomUserResponse.RandomResult randomUser = randomUserClient.getRandomUser();
@@ -38,7 +38,7 @@ public class TikTokAccountBuilder {
                 .countryCode(proxy.getCountryCode())
                 .dob(randomUser.getDob())
                 .username(uniqueUsername)
-                .accountLink(TIK_TOK_BASE_URL + "@" + uniqueUsername)
+                .accountLink(TIKTOK_BASE_URL + "@" + uniqueUsername)
                 .build();
     }
 

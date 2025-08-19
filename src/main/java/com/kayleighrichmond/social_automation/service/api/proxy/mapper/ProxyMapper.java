@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.service.api.proxy.mapper;
 
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
-import com.kayleighrichmond.social_automation.web.dto.proxy.AddProxyRequest;
+import com.kayleighrichmond.social_automation.web.controller.proxy.dto.AddProxyRequest;
 
 public class ProxyMapper {
 

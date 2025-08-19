@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.web.controller;
+package com.kayleighrichmond.social_automation.web.controller.tiktok;
 
 import com.kayleighrichmond.social_automation.domain.entity.account.TikTokAccount;
 import com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokService;

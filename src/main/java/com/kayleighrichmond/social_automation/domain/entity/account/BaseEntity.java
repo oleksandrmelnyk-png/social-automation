@@ -33,4 +33,6 @@ public abstract class BaseEntity {
     @JoinColumn(name = "proxy_id")
     private Proxy proxy;
 
+    private String nstProfileId;
+
 }
