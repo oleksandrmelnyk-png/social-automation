@@ -20,10 +20,14 @@ public class PlaywrightHelper {
     }
 
     public boolean waitForSelector(Locator locator) {
+        return waitForSelector(locator, 7000);
+    }
+
+    public boolean waitForSelector(Locator locator, int duration) {
         boolean appeared;
 
         try {
-            locator.waitFor(new Locator.WaitForOptions().setTimeout(7000));
+            locator.waitFor(new Locator.WaitForOptions().setTimeout(duration));
             appeared = locator.isVisible();
         } catch (PlaywrightException e) {
             appeared = false;
@@ -31,4 +35,5 @@ public class PlaywrightHelper {
 
         return appeared;
     }
+
 }

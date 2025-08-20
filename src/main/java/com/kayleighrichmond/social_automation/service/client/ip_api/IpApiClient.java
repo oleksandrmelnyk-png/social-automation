@@ -35,7 +35,7 @@ public class IpApiClient {
             String responseBody = okHttpHelper.buildResponseBodyOrThrow(response, "IpApi error: " + response.code() + " - " + response.message());
             return objectMapper.readValue(responseBody, GetProxyAddressResponse.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IpApiException("Exception while getting address from proxy");
         }
     }
 }

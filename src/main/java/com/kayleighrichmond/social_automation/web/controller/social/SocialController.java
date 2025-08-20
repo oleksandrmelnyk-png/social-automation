@@ -2,7 +2,7 @@ package com.kayleighrichmond.social_automation.web.controller.social;
 
 import com.kayleighrichmond.social_automation.service.api.social.SocialService;
 import com.kayleighrichmond.social_automation.web.controller.social.dto.LikePostsRequest;
-import com.kayleighrichmond.social_automation.web.controller.validator.SocialAccountCreationValidator;
+import com.kayleighrichmond.social_automation.web.validator.SocialAccountCreationValidator;
 import com.kayleighrichmond.social_automation.web.controller.social.dto.CreateAccountsRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +27,4 @@ public class SocialController {
     public void likeAccounts(@PathVariable String id, @RequestBody LikePostsRequest likePostsRequest) {
         socialService.processLikePosts(id, likePostsRequest);
     }
-
 }

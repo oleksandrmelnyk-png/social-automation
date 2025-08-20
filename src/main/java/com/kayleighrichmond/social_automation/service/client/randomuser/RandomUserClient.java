@@ -35,7 +35,7 @@ public class RandomUserClient {
 
             return objectMapper.readValue(responseBody, RandomUserResponse.class).getResults().get(0);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RandomUserApiException("Exception while getting random user from RandomUserApi");
         }
     }
 }

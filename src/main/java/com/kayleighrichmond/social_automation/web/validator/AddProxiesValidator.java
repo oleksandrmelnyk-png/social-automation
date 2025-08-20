@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.web.controller.validator;
+package com.kayleighrichmond.social_automation.web.validator;
 
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.mapper.ProxyMapper;

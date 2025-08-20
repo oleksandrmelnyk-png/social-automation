@@ -3,7 +3,7 @@ package com.kayleighrichmond.social_automation.service.client.mailtm;
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetDomainsResponse;
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetMessagesResponse;
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetTokenResponse;
-import com.kayleighrichmond.social_automation.service.client.mailtm.exception.NoMessagesReceivedException;
+import com.kayleighrichmond.social_automation.service.client.mailtm.exception.MailTmApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -70,7 +70,7 @@ public class MailTmService {
             return messages;
         }
 
-        throw new NoMessagesReceivedException("No messages received for token: " + token);
+        throw new MailTmApiException("No messages received for token: " + token);
     }
 
 }

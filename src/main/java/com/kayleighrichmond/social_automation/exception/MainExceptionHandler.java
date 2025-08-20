@@ -1,11 +1,14 @@
 package com.kayleighrichmond.social_automation.exception;
 
 import com.kayleighrichmond.social_automation.service.api.account.exception.AccountsCurrentlyCreatingException;
-import com.kayleighrichmond.social_automation.service.client.mailtm.exception.NoMessagesReceivedException;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyAlreadyExistsException;
+import com.kayleighrichmond.social_automation.service.client.ip_api.IpApiException;
+import com.kayleighrichmond.social_automation.service.client.mailtm.exception.MailTmApiException;
 import com.kayleighrichmond.social_automation.service.client.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.NoProxiesAvailableException;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.NotEnoughProxiesException;
 import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotVerifiedException;
+import com.kayleighrichmond.social_automation.service.client.randomuser.RandomUserApiException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,13 +34,6 @@ public class MainExceptionHandler {
 
     @ExceptionHandler(NstBrowserException.class)
     public ResponseEntity<String> handleNstBrowserException(NstBrowserException e) {
-        return ResponseEntity
-                .status(HttpStatusCode.valueOf(500))
-                .body(e.getMessage());
-    }
-
-    @ExceptionHandler(NoMessagesReceivedException.class)
-    public ResponseEntity<String> handleNoMessagesReceivedException(NoMessagesReceivedException e) {
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(500))
                 .body(e.getMessage());
@@ -71,4 +67,31 @@ public class MainExceptionHandler {
                 .body(e.getMessage());
     }
 
+    @ExceptionHandler(ProxyAlreadyExistsException.class)
+    public ResponseEntity<String> handleProxyAlreadyExistsException(ProxyAlreadyExistsException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MailTmApiException.class)
+    public ResponseEntity<String> handleMailTmApiException(MailTmApiException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(500))
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(IpApiException.class)
+    public ResponseEntity<String> handleIpApiException(IpApiException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(500))
+                .body(e.getMessage());
+    }
+
+    @ExceptionHandler(RandomUserApiException.class)
+    public ResponseEntity<String> handleRandomUserApiException(RandomUserApiException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(500))
+                .body(e.getMessage());
+    }
 }

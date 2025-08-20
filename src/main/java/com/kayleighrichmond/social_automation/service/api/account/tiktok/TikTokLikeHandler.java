@@ -4,6 +4,8 @@ import com.kayleighrichmond.social_automation.domain.entity.account.TikTokAccoun
 import com.kayleighrichmond.social_automation.domain.type.Platform;
 import com.kayleighrichmond.social_automation.exception.ServerException;
 import com.kayleighrichmond.social_automation.service.api.account.LikeHandler;
+import com.kayleighrichmond.social_automation.service.api.proxy.ProxyVerifier;
+import com.kayleighrichmond.social_automation.service.api.proxy.exception.ProxyNotVerifiedException;
 import com.kayleighrichmond.social_automation.service.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.service.client.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.service.http.PlaywrightInitializer;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
-import static com.kayleighrichmond.social_automation.service.api.account.WaitHelper.waitRandomlyInRange;
+import static com.kayleighrichmond.social_automation.service.api.account.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokConstants.TIKTOK_FOR_YOU_URL;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokConstants.TIKTOK_SIGN_IN_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokSelectors.*;
@@ -31,15 +33,22 @@ public class TikTokLikeHandler implements LikeHandler {
 
     private final PlaywrightHelper playwrightHelper;
 
+    private final ProxyVerifier proxyVerifier;
+
     private final PlaywrightInitializer playwrightInitializer;
 
     @Override
     public void processLikePosts(String accountId, LikePostsRequest likePostsRequest) {
         TikTokAccount tikTokAccount = tikTokService.findById(accountId);
-        PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
-        Page page = playwrightDto.getPage();
-
         try {
+            boolean verifiedProxy = proxyVerifier.verifyProxy(tikTokAccount.getProxy(), false);
+            if (!verifiedProxy) {
+                throw new ProxyNotVerifiedException("Proxy %s has not verified".formatted(tikTokAccount.getProxy().getUsername()));
+            }
+
+            PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
+            Page page = playwrightDto.getPage();
+
             log.info("Opening browser");
             page.navigate(TIKTOK_FOR_YOU_URL);
             page.waitForLoadState();
@@ -49,18 +58,13 @@ public class TikTokLikeHandler implements LikeHandler {
                 processLogIn(page, tikTokAccount);
             }
 
-            processLiking(page, likePostsRequest.getLikes());
+            processLiking(playwrightDto, likePostsRequest.getLikes());
             log.info("Successfully finished liking videos");
-        } catch (InterruptedException e) {
-            // TODO add Error handler for throwing NstBrowserException in creation account as well
-            log.error("InterruptedException: {}", e.getMessage());
+        } catch (Error | InterruptedException e) {
+            // TODO add an Error handler for throwing NstBrowserException in creation account as well
+            log.error(e.getMessage());
             throw new ServerException("Something went wrong with posts liking");
         }
-    }
-
-    private boolean isLoggedIn(Page page) {
-        Locator avatarIcon = page.locator(AVATAR_ICON);
-        return playwrightHelper.waitForSelector(avatarIcon);
     }
 
     private void processLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
@@ -95,33 +99,50 @@ public class TikTokLikeHandler implements LikeHandler {
         page.waitForLoadState();
     }
 
-    private void processLiking(Page page, int likes) throws InterruptedException {
-        log.info("Starting liking videos");
-        int liked = 0;
-        Random random = new Random();
+    private void processLiking(PlaywrightDto playwrightDto, int likes) throws InterruptedException {
+        try {
+            log.info("Starting liking videos");
 
-        while (liked < likes) {
-            boolean isLike = random.nextBoolean();
-            if (isLike) {
-                watchVideoAndLike(page);
-                liked++;
-                log.info("Liked video");
-            } else {
+            Page page = playwrightDto.getPage();
+            Random random = new Random();
+
+            int liked = 0, videoIndex = 0;
+            while (liked < likes) {
+                boolean isDecidedToLike = random.nextBoolean();
+                if (isDecidedToLike && !isLive(page, videoIndex)) {
+                    watchVideoAndLike(page, videoIndex);
+                    liked++;
+                }
+
                 waitRandomlyInRange(1000, 3000);
+                page.click(NEXT_VIDEO_BUTTON);
+                videoIndex++;
             }
-
-            page.click(NEXT_VIDEO_BUTTON);
-            waitRandomlyInRange(2200, 3000);
+        } finally {
+            playwrightDto.getAutoCloseables().forEach(ac -> {
+                try {
+                    ac.close();
+                } catch (Exception e) {
+                    log.error("Failed to close resource", e);
+                }
+            });
         }
     }
 
-    private void watchVideoAndLike(Page page) throws InterruptedException {
-        // TODO more human-like actions get video's length and, for example don't watch till the end it it's too long or it has not enough likes
-
-        waitRandomlyInRange(3000, 8000);
-        page.click(LIKE_BUTTON);
+    private void watchVideoAndLike(Page page, int videoIndex) throws InterruptedException {
+        waitRandomlyInRange(2000, 5000);
+        page.click(selectLikeButton(videoIndex));
     }
 
+    private boolean isLoggedIn(Page page) {
+        Locator avatarIcon = page.locator(AVATAR_ICON);
+        return playwrightHelper.waitForSelector(avatarIcon);
+    }
+
+    private boolean isLive(Page page, int videoIndex) {
+        Locator avatarIcon = page.locator(selectLiveNow(videoIndex));
+        return playwrightHelper.waitForSelector(avatarIcon, 1000);
+    }
 
     @Override
     public Platform getPlatform() {

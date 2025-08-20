@@ -2,7 +2,7 @@ package com.kayleighrichmond.social_automation.web.controller.proxy;
 
 import com.kayleighrichmond.social_automation.domain.entity.Proxy;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyService;
-import com.kayleighrichmond.social_automation.web.controller.validator.AddProxiesValidator;
+import com.kayleighrichmond.social_automation.web.validator.AddProxiesValidator;
 import com.kayleighrichmond.social_automation.web.controller.proxy.dto.AddProxyRequest;
 import com.kayleighrichmond.social_automation.web.controller.proxy.dto.UpdateProxyRequest;
 import jakarta.validation.Valid;

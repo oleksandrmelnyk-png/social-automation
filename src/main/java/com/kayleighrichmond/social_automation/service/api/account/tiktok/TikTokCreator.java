@@ -29,9 +29,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Random;
 
-import static com.kayleighrichmond.social_automation.service.api.account.WaitHelper.waitRandomlyInRange;
+import static com.kayleighrichmond.social_automation.service.api.account.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokSelectors.*;
 
@@ -118,7 +117,6 @@ public class TikTokCreator implements AccountCreator {
     }
 
     private void processAccountRegistration(TikTokAccount tikTokAccount, Page page) {
-        Random random = new Random();
         LocalDate dotDate = LocalDate.parse(tikTokAccount.getDob().getDate().substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         try {

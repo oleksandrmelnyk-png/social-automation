@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.web.controller.validator;
+package com.kayleighrichmond.social_automation.web.validator;
 
 public interface Validator {
 

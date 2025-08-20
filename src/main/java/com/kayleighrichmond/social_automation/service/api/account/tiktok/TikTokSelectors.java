@@ -52,11 +52,17 @@ public class TikTokSelectors {
 
     static String USERNAME_INPUT = "input[name='new-username']";
 
-    static String AVATAR_ICON = "img.css-eady97-ImgAvatar.e1dsb8x11";
+    static String AVATAR_ICON = "button[aria-haspopup='dialog'] img";
 
-    static String LIKE_BUTTON = "button[aria-label^='Like video']";
+    static String NEXT_VIDEO_BUTTON = "button svg path[d^='m24 27.76']";
 
-    static String NEXT_VIDEO_BUTTON = "div.css-guqx24-DivFeedNavigationContainer > div.css-1dux0b3:nth-child(2) > button.TUXButton";
+    static String selectLikeButton(int videoIndex) {
+        return "article[data-scroll-index='%d'] button[aria-label^='Like video']".formatted(videoIndex);
+    }
+
+    static String selectLiveNow(int videoIndex) {
+        return "article[data-scroll-index='%d']:has-text('LIVE now') button[aria-label^='Like video']".formatted(videoIndex);
+    }
 
     static String selectMonth(Month month) {
         return "div[role='option'] >> text=%s".formatted(month.name().charAt(0) + month.name().substring(1).toLowerCase());

@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.service.api.account;
+package com.kayleighrichmond.social_automation.service.api.account.helper;
 
 public class WaitHelper {
 

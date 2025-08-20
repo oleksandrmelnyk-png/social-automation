@@ -14,8 +14,8 @@ public class LikePostsRequest {
     @NotNull(message = "Platform is required")
     private Platform platform;
 
-    @Min(value = 1, message = "Minimum 1 action is required")
-    @Max(value = 10, message = "Maximum 10 actions are allowed")
+    @Min(value = 1, message = "Minimum 1 like is required")
+    @Max(value = 30, message = "Maximum 30 likes are allowed")
     private int likes;
 
 }

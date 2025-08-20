@@ -1,6 +1,5 @@
-package com.kayleighrichmond.social_automation.service.api.social;
+package com.kayleighrichmond.social_automation.service.api.account.registry;
 
-import com.kayleighrichmond.social_automation.service.api.account.AccountCreator;
 import com.kayleighrichmond.social_automation.domain.type.Platform;
 import com.kayleighrichmond.social_automation.service.api.account.LikeHandler;
 import org.springframework.stereotype.Component;
@@ -12,23 +11,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class SocialRegistry {
-
-    private final Map<Platform, AccountCreator> creatorsByPlatform;
+public class LikeHandlerRegistry {
 
     private final Map<Platform, LikeHandler> likeHandlersByPlatform;
 
-    public SocialRegistry(Set<AccountCreator> accountCreators, Set<LikeHandler> likeHandlers) {
-        this.creatorsByPlatform = accountCreators.stream()
-                .collect(Collectors.toMap(AccountCreator::getPlatform, Function.identity()));
-
+    public LikeHandlerRegistry(Set<LikeHandler> likeHandlers) {
         this.likeHandlersByPlatform = likeHandlers.stream()
                 .collect(Collectors.toMap(LikeHandler::getPlatform, Function.identity()));
-    }
-
-    public AccountCreator getAccountCreator(Platform platform) {
-        return Optional.ofNullable(creatorsByPlatform.get(platform))
-                .orElseThrow(() -> new IllegalStateException("No accounts creator exists by platform: " + platform));
     }
 
     public LikeHandler getLikeHandler(Platform platform) {

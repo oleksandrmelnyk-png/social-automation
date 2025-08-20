@@ -30,7 +30,6 @@ public class ProxyVerifier {
         }
 
         int attempts = 1;
-
         try {
             for (int i = 0; i < maxVerifyTries; i++) {
                 log.info("Trying to verify proxy {} ... {}", proxy.getUsername(), "%d/%d".formatted(attempts++, maxVerifyTries));

@@ -1,12 +1,10 @@
 package com.kayleighrichmond.social_automation.service.api.account.tiktok.exception;
 
-import com.kayleighrichmond.social_automation.domain.entity.account.BaseEntity;
 import com.kayleighrichmond.social_automation.exception.ServerException;
 import com.kayleighrichmond.social_automation.domain.entity.account.TikTokAccount;
 import com.kayleighrichmond.social_automation.service.api.account.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.service.api.account.exception.ExceptionHandler;
 import com.kayleighrichmond.social_automation.service.api.account.tiktok.TikTokService;
-import com.kayleighrichmond.social_automation.service.client.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.service.api.proxy.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.type.Status;
 import com.kayleighrichmond.social_automation.web.controller.tiktok.dto.UpdateAccountRequest;
@@ -19,21 +17,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
-    private final TikTokService tikTokService;
-
     private final ProxyHelper proxyHelper;
 
-    public void handle(Exception e, BaseEntity baseEntity) {
-        verifyArgument(baseEntity.getClass());
-        TikTokAccount tikTokAccount = (TikTokAccount) baseEntity;
+    private final TikTokService tikTokService;
+
+    public void handle(Exception e, Object target) {
+        verifyArgument(target.getClass());
+        TikTokAccount tikTokAccount = (TikTokAccount) target;
 
         if (e instanceof CaptchaException) {
             handleCaptchaException(tikTokAccount);
-            return;
-        }
-
-        if (e instanceof NstBrowserException) {
-            handleNstBrowserException(e);
             return;
         }
 
@@ -43,7 +36,7 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
     @Override
     public void handleDefault(Exception e) {
         log.error("Default handler: {}", e.getMessage());
-        tikTokService.updateAllFromInProgressToFailed(e.getMessage());
+        tikTokService.updateAllFromInProgressToFailed("Unexpected server exception");
         throw new ServerException(e.getMessage());
     }
 
@@ -52,12 +45,6 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         if (!clazz.equals(TikTokAccount.class)) {
             throw new IllegalArgumentException("TikTokAccount required");
         }
-    }
-
-    private void handleNstBrowserException(Exception e) {
-        log.error("Exception: {}", e.getMessage());
-        tikTokService.updateAllFromInProgressToFailed(e.getMessage());
-        throw new ServerException(e.getMessage());
     }
 
     private void handleCaptchaException(TikTokAccount tikTokAccount) {

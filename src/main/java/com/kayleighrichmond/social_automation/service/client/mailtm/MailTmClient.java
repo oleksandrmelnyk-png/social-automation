@@ -5,7 +5,7 @@ import com.kayleighrichmond.social_automation.service.client.mailtm.dto.AccountR
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetDomainsResponse;
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetMessagesResponse;
 import com.kayleighrichmond.social_automation.service.client.mailtm.dto.GetTokenResponse;
-import com.kayleighrichmond.social_automation.service.client.mailtm.exception.NoDomainFoundException;
+import com.kayleighrichmond.social_automation.service.client.mailtm.exception.MailTmApiException;
 import com.kayleighrichmond.social_automation.service.http.OkHttpHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class MailTmClient {
 
             Thread.sleep(1100);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new MailTmApiException("Exception while creating account in MailTm");
         }
     }
 
@@ -71,7 +71,7 @@ public class MailTmClient {
 
             return objectMapper.readValue(responseBody, GetTokenResponse.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MailTmApiException("Exception while getting token from MailTm");
         }
     }
 
@@ -89,12 +89,12 @@ public class MailTmClient {
 
             GetDomainsResponse getDomainsResponse = objectMapper.readValue(responseBody, GetDomainsResponse.class);
             if (getDomainsResponse.getTotalItems() == 0) {
-                throw new NoDomainFoundException("No domain found in MailTm");
+                throw new MailTmApiException("No domain found in MailTm");
             }
 
             return getDomainsResponse;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MailTmApiException("Exception while getting domains from MailTm");
         }
     }
 
@@ -113,7 +113,7 @@ public class MailTmClient {
 
             return objectMapper.readValue(responseBody, GetMessagesResponse.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new MailTmApiException("Exception while getting messages from MailTm");
         }
     }
 }
