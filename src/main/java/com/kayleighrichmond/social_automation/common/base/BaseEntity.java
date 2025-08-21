@@ -1,8 +1,8 @@
-package com.kayleighrichmond.social_automation.common.dto;
+package com.kayleighrichmond.social_automation.common.base;
 
 import com.kayleighrichmond.social_automation.common.type.Action;
-import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.common.type.Status;
+import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,17 +21,17 @@ public abstract class BaseEntity {
 
     private String password;
 
+    private String countryCode;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Enumerated(EnumType.STRING)
     private Action action;
 
-    private String executionMessage;
+    private int likes;
 
     private String accountLink;
-
-    private String countryCode;
 
     @ManyToOne
     @JoinColumn(name = "proxy_id")
@@ -39,4 +39,5 @@ public abstract class BaseEntity {
 
     private String nstProfileId;
 
+    private String executionMessage;
 }

@@ -22,6 +22,8 @@ public class UpdateAccountRequest {
 
     private Action action;
 
+    private int likes;
+
     private String executionMessage;
 
     private Dob dob;

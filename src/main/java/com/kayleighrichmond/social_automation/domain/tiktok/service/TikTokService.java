@@ -19,13 +19,26 @@ public class TikTokService {
 
     private final TikTokRepository tikTokRepository;
 
+    public TikTokAccount findById(String id) {
+        return tikTokRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by id " + id));
+    }
+
+    public List<TikTokAccount> findAll() {
+        return tikTokRepository.findAll();
+    }
+
+    public List<TikTokAccount> findAllByStatus(Status status) {
+        return tikTokRepository.findAllByStatus(status);
+    }
+
     public List<TikTokAccount> saveAll(List<TikTokAccount> tikTokAccounts) {
-        throwIfAccountsInProgressExists();
+        throwIfAccountsInProgressExists(Status.IN_PROGRESS);
         return tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
     }
 
     public void update(String id, UpdateAccountRequest updateAccountRequest) {
-        TikTokAccount tikTokAccount = findByIdOrThrow(id);
+        TikTokAccount tikTokAccount = findById(id);
 
         Optional.ofNullable(updateAccountRequest.getName()).ifPresent(tikTokAccount::setName);
         Optional.ofNullable(updateAccountRequest.getEmail()).ifPresent(tikTokAccount::setEmail);
@@ -39,22 +52,6 @@ public class TikTokService {
         Optional.ofNullable(updateAccountRequest.getAction()).ifPresent(tikTokAccount::setAction);
 
         tikTokRepository.save(tikTokAccount);
-    }
-
-    public TikTokAccount findById(String id) {
-        return findByIdOrThrow(id);
-    }
-
-    public List<TikTokAccount> findAll() {
-        return tikTokRepository.findAll();
-    }
-
-    public List<TikTokAccount> findAllByStatus(Status status) {
-        return tikTokRepository.findAllByStatus(status);
-    }
-
-    public void deleteAllByStatus(Status status) {
-        tikTokRepository.deleteAllByStatus(status);
     }
 
     @Transactional
@@ -78,6 +75,10 @@ public class TikTokService {
         update(accountId, updateAccountRequest);
     }
 
+    public void deleteAllByStatus(Status status) {
+        tikTokRepository.deleteAllByStatus(status);
+    }
+
     private List<TikTokAccount> retrieveNotExistingAccounts(List<TikTokAccount> tikTokAccounts) {
         List<String> emails = tikTokAccounts.stream()
                 .map(TikTokAccount::getEmail)
@@ -94,15 +95,10 @@ public class TikTokService {
                 .toList();
     }
 
-    private void throwIfAccountsInProgressExists() {
-        Optional<TikTokAccount> tikTokAccount = tikTokRepository.findByStatus(Status.IN_PROGRESS);
-        if (tikTokAccount.isPresent()) {
+    private void throwIfAccountsInProgressExists(Status status) {
+        List<TikTokAccount> tikTokAccounts = findAllByStatus(status);
+        if (!tikTokAccounts.isEmpty()) {
             throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
         }
-    }
-
-    private TikTokAccount findByIdOrThrow(String id) {
-        return tikTokRepository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by id " + id));
     }
 }

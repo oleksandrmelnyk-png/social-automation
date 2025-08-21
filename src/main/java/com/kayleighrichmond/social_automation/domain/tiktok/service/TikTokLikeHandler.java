@@ -1,12 +1,11 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
+import com.kayleighrichmond.social_automation.common.exception.AccountIsInActionException;
 import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.LikeHandler;
-import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyVerifier;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotVerifiedException;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.system.client.playwright.dto.PlaywrightDto;
@@ -35,38 +34,22 @@ public class TikTokLikeHandler implements LikeHandler {
 
     private final PlaywrightHelper playwrightHelper;
 
-    private final ProxyVerifier proxyVerifier;
-
     private final PlaywrightInitializer playwrightInitializer;
 
     @Override
     public void processLikePosts(String accountId, LikePostsRequest likePostsRequest) {
         TikTokAccount tikTokAccount = tikTokService.findById(accountId);
+        if (tikTokAccount.getAction() != null && tikTokAccount.getAction() != Action.ACTED && tikTokAccount.getAction() != Action.FAILED) {
+            throw new AccountIsInActionException("This account is already in action");
+        }
+
         try {
-            boolean verifiedProxy = proxyVerifier.verifyProxy(tikTokAccount.getProxy(), false);
-            if (!verifiedProxy) {
-                throw new ProxyNotVerifiedException("Proxy %s has not verified".formatted(tikTokAccount.getProxy().getUsername()));
-            }
-
             tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().action(Action.LIKING).build());
-
-            PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
-            Page page = playwrightDto.getPage();
-
-            log.info("Opening browser");
-            page.navigate(TIKTOK_FOR_YOU_URL);
-            page.waitForLoadState();
-
-            if (!isLoggedIn(page)) {
-                log.info("User not signed in. processing logging");
-                processLogIn(page, tikTokAccount);
-            }
-
-            processLiking(playwrightDto, likePostsRequest.getLikes());
-            log.info("Successfully finished liking videos");
+            initializeNstAndStartAccountCreation(tikTokAccount, likePostsRequest);
 
             UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                     .action(Action.ACTED)
+                    .likes(tikTokAccount.getLikes() + likePostsRequest.getLikes())
                     .build();
             tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
         } catch (Error | Exception e) {
@@ -75,6 +58,23 @@ public class TikTokLikeHandler implements LikeHandler {
             log.error(e.getMessage());
             throw new ServerException("Something went wrong with posts liking");
         }
+    }
+
+    private void initializeNstAndStartAccountCreation(TikTokAccount tikTokAccount, LikePostsRequest likePostsRequest) throws InterruptedException {
+        PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
+        Page page = playwrightDto.getPage();
+
+        log.info("Opening browser");
+        page.navigate(TIKTOK_FOR_YOU_URL);
+        page.waitForLoadState();
+
+        if (!isLoggedIn(page)) {
+            log.info("User not signed in. processing logging");
+            processLogIn(page, tikTokAccount);
+        }
+
+        processLiking(playwrightDto, likePostsRequest.getLikes());
+        log.info("Successfully finished liking videos");
     }
 
     private void processLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
@@ -146,7 +146,7 @@ public class TikTokLikeHandler implements LikeHandler {
 
     private boolean isLoggedIn(Page page) {
         Locator avatarIcon = page.locator(AVATAR_ICON);
-        return playwrightHelper.waitForSelector(avatarIcon);
+        return playwrightHelper.waitForSelector(avatarIcon, 10000);
     }
 
     private boolean isLive(Page page, int videoIndex) {

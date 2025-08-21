@@ -24,11 +24,15 @@ public class ProxyHelper {
 
     private final AppProps appProps;
 
-    public List<Proxy> verifyProxiesByCountryCodeAndUpdate(String countryCode) {
+    public List<Proxy> verifyProxiesByCountryCodeAndUpdate(String countryCode, int limit) {
         List<Proxy> proxies = proxyService.findAllByCountryCode(countryCode);
         List<Proxy> verifiedProxies = new ArrayList<>();
 
         for (Proxy proxy : proxies) {
+            if (isProxiesLimitReached(limit, verifiedProxies.size())) {
+                return verifiedProxies;
+            }
+
             boolean verifiedProxy = proxyVerifier.verifyProxy(proxy, false);
             if (verifiedProxy) {
                 verifiedProxies.add(proxy);
@@ -44,7 +48,7 @@ public class ProxyHelper {
         return verifiedProxies;
     }
 
-    public List<Proxy> rotateAndGetAvailableProxies(List<Proxy> verifiedProxies) {
+    public List<Proxy> getAvailableProxiesOrRotate(List<Proxy> verifiedProxies) {
         Predicate<Proxy> verifiedProxyPredicate = proxy -> {
             if (proxy.getAccountsLinked() < appProps.getAccountsPerProxy()) {
                 return true;
@@ -55,6 +59,14 @@ public class ProxyHelper {
         return verifiedProxies.stream()
                 .filter(verifiedProxyPredicate)
                 .toList();
+    }
+
+    private boolean isProxiesLimitReached(int limit, int proxiesSize) {
+        if (limit == -1) {
+            return false;
+        } else {
+            return limit == proxiesSize;
+        }
     }
 
     public int getAmountOfProxyUsage(List<Proxy> proxies) {

@@ -2,9 +2,7 @@ package com.kayleighrichmond.social_automation.system.client.nst;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
-import com.kayleighrichmond.social_automation.system.client.nst.dto.CreateProfileRequest;
-import com.kayleighrichmond.social_automation.system.client.nst.dto.CreateProfileResponse;
-import com.kayleighrichmond.social_automation.system.client.nst.dto.StartBrowserResponse;
+import com.kayleighrichmond.social_automation.system.client.nst.dto.*;
 import com.kayleighrichmond.social_automation.system.client.nst.exception.NstBrowserException;
 import com.kayleighrichmond.social_automation.common.helper.OkHttpHelper;
 import lombok.RequiredArgsConstructor;
@@ -64,6 +62,36 @@ public class NstBrowserClient {
         } catch (IOException e) {
             log.error("NstBrowserException: {}", e.getMessage());
             throw new NstBrowserException("Couldn't create profile in Nst browser");
+        }
+    }
+
+    public void updateProfileProxy(String profileId, Proxy proxy) {
+        try{
+            MediaType mediaType = MediaType.parse("text/plain");
+            UpdateProfileProxyRequest updateProfileProxyRequest = UpdateProfileProxyRequest.builder()
+                    .url("http://%s:%s@%s:%d".formatted(
+                            proxy.getUsername(),
+                            proxy.getPassword(),
+                            proxy.getHost(),
+                            proxy.getPort()
+                    )).build();
+
+            String json = objectMapper.writeValueAsString(updateProfileProxyRequest);
+            RequestBody body = RequestBody.create(mediaType, json);
+
+            Request request = new Request.Builder()
+                    .url(NST_API + "/profiles/" + profileId + "/proxy")
+                    .method("PUT", body)
+                    .addHeader("x-api-key", NST_BROWSER_API_KEY)
+                    .build();
+
+            Response response = okHttpClient.newCall(request).execute();
+            okHttpHelper.buildResponseBodyOrThrow(response, "NstApi error: " + response.code() + " - " + response.message());
+
+            response.close();
+        } catch (IOException e) {
+            log.error("NstBrowserException: {}", e.getMessage());
+            throw new NstBrowserException("Couldn't update profile proxy in Nst browser");
         }
     }
 

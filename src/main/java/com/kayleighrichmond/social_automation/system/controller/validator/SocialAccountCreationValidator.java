@@ -21,8 +21,8 @@ public class SocialAccountCreationValidator implements Validator {
         verifyArgument(target.getClass());
         CreateAccountsRequest createAccountsRequest = (CreateAccountsRequest) target;
 
-        List<Proxy> verifiedProxiesByCountryCode = proxyHelper.verifyProxiesByCountryCodeAndUpdate(createAccountsRequest.getCountryCode());
-        List<Proxy> availableProxies = proxyHelper.rotateAndGetAvailableProxies(verifiedProxiesByCountryCode);
+        List<Proxy> verifiedProxiesByCountryCode = proxyHelper.verifyProxiesByCountryCodeAndUpdate(createAccountsRequest.getCountryCode(), createAccountsRequest.getAmount());
+        List<Proxy> availableProxies = proxyHelper.getAvailableProxiesOrRotate(verifiedProxiesByCountryCode);
 
         int amountOfProxyUsage = proxyHelper.getAmountOfProxyUsage(availableProxies);
         if (amountOfProxyUsage < createAccountsRequest.getAmount()) {

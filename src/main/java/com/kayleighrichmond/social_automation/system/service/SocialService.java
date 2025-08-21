@@ -9,7 +9,6 @@ import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccoun
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @RequiredArgsConstructor
 public class SocialService {

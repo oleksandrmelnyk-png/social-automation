@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface TikTokRepository extends JpaRepository<TikTokAccount, String> {
 
-    Optional<TikTokAccount> findByStatus(Status status);
-
     List<TikTokAccount> findAllByStatus(Status status);
 
     void deleteAllByStatus(Status status);
