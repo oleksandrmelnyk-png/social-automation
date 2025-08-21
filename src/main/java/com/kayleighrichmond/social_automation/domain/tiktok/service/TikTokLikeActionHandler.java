@@ -1,7 +1,9 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
 import com.kayleighrichmond.social_automation.common.exception.AccountIsInActionException;
+import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
 import com.kayleighrichmond.social_automation.common.type.Action;
+import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
@@ -38,7 +40,7 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
 
     @Override
     public void processLikePosts(String accountId, LikePostsRequest likePostsRequest) {
-        TikTokAccount tikTokAccount = getAccountIfNotInAction(accountId);
+        TikTokAccount tikTokAccount = getAccountIfNotInActionAndNotInProgress(accountId);
         try {
             tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().action(Action.LIKING).build());
             initializeNstAndStartAccountCreation(tikTokAccount, likePostsRequest);
@@ -135,10 +137,17 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
         }
     }
 
-    private TikTokAccount getAccountIfNotInAction(String accountId) {
+    private TikTokAccount getAccountIfNotInActionAndNotInProgress(String accountId) {
         TikTokAccount tikTokAccount = tikTokService.findById(accountId);
-        if (tikTokAccount.getAction() != null && tikTokAccount.getAction() != Action.ACTED && tikTokAccount.getAction() != Action.FAILED) {
+
+        if (tikTokAccount.getAction() != null
+                && tikTokAccount.getAction() != Action.ACTED
+                && tikTokAccount.getAction() != Action.FAILED) {
             throw new AccountIsInActionException("This account is already in action");
+        }
+
+        if (tikTokAccount.getStatus() == Status.IN_PROGRESS || tikTokAccount.getStatus() == Status.FAILED) {
+            throw new AccountsCurrentlyCreatingException("This accounts is currently creating");
         }
 
         return tikTokAccount;

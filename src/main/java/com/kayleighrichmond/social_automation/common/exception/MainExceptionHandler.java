@@ -79,6 +79,13 @@ public class MainExceptionHandler {
                 .status(HttpStatusCode.valueOf(400))
                 .body(e.getMessage());
     }
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<String> handleAccountNotFoundException(AccountNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(e.getMessage());
+    }
+
 
     @ExceptionHandler(MailTmApiException.class)
     public ResponseEntity<String> handleMailTmApiException(MailTmApiException e) {
