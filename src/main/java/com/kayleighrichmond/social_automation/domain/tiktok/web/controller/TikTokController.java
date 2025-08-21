@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.web.controller;
 
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class TikTokController {
     private final TikTokService tikTokService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<TikTokAccount>> findAll() {
+    public ResponseEntity<List<TikTokBaseAccount>> findAll() {
         return ResponseEntity.ok(tikTokService.findAll());
     }
 

@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseEntity {
+public abstract class BaseAccount {
 
     @Column(unique = true)
     private String email;
@@ -29,7 +29,7 @@ public abstract class BaseEntity {
     @Enumerated(EnumType.STRING)
     private Action action;
 
-    private int likes;
+    private int likedPosts;
 
     private String accountLink;
 

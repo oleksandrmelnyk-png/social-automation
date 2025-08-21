@@ -16,6 +16,6 @@ public class LikePostsRequest {
 
     @Min(value = 1, message = "Minimum 1 like is required")
     @Max(value = 30, message = "Maximum 30 likes are allowed")
-    private int likes;
+    private int likesCount;
 
 }

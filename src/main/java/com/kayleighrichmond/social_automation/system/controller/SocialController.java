@@ -25,7 +25,7 @@ public class SocialController {
     }
 
     @PostMapping("/like-posts/account/{id}")
-    public void likeAccounts(@PathVariable String id, @RequestBody LikePostsRequest likePostsRequest) {
+    public void likeAccounts(@PathVariable String id, @Valid @RequestBody LikePostsRequest likePostsRequest) {
         socialService.processLikePosts(id, likePostsRequest);
     }
 }

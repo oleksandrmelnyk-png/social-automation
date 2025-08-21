@@ -2,7 +2,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.common.builder;
 
 import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
 import com.kayleighrichmond.social_automation.system.client.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.system.client.randomuser.RandomUserClient;
 import com.kayleighrichmond.social_automation.system.client.randomuser.dto.RandomUserResponse;
@@ -24,12 +24,12 @@ public class TikTokAccountBuilder {
 
     private final AppProps appProps;
 
-    public TikTokAccount buildWithProxy(Proxy proxy) {
+    public TikTokBaseAccount buildWithProxy(Proxy proxy) {
         RandomUserResponse.RandomResult randomUser = randomUserClient.getRandomUser();
         String address = mailTmService.createAddressWithDomainOncePerSecond(randomUser.getEmail(), appProps.getAccountsPassword());
         String uniqueUsername = generateUniqueUsername(randomUser.getLogin().getUsername());
 
-        return TikTokAccount.builder()
+        return TikTokBaseAccount.builder()
                 .email(address)
                 .password(appProps.getAccountsPassword())
                 .name(randomUser.getName())

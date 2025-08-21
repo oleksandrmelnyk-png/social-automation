@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.common.registry;
 
 import com.kayleighrichmond.social_automation.common.type.Platform;
-import com.kayleighrichmond.social_automation.common.LikeHandler;
+import com.kayleighrichmond.social_automation.common.LikeActionHandler;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 @Component
 public class LikeHandlerRegistry {
 
-    private final Map<Platform, LikeHandler> likeHandlersByPlatform;
+    private final Map<Platform, LikeActionHandler> likeHandlersByPlatform;
 
-    public LikeHandlerRegistry(Set<LikeHandler> likeHandlers) {
-        this.likeHandlersByPlatform = likeHandlers.stream()
-                .collect(Collectors.toMap(LikeHandler::getPlatform, Function.identity()));
+    public LikeHandlerRegistry(Set<LikeActionHandler> likeActionHandlers) {
+        this.likeHandlersByPlatform = likeActionHandlers.stream()
+                .collect(Collectors.toMap(LikeActionHandler::getPlatform, Function.identity()));
     }
 
-    public LikeHandler getLikeHandler(Platform platform) {
+    public LikeActionHandler getLikeHandler(Platform platform) {
         return Optional.ofNullable(likeHandlersByPlatform.get(platform))
                 .orElseThrow(() -> new IllegalStateException("No like handlers exists by platform: " + platform));
     }

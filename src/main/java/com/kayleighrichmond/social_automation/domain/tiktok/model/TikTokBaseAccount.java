@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.model;
 
-import com.kayleighrichmond.social_automation.common.base.BaseEntity;
+import com.kayleighrichmond.social_automation.common.base.BaseAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.embedded.Dob;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.embedded.Name;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class TikTokAccount extends BaseEntity {
+public class TikTokBaseAccount extends BaseAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

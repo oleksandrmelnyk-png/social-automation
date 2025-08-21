@@ -22,7 +22,7 @@ public class UpdateAccountRequest {
 
     private Action action;
 
-    private int likes;
+    private Integer likedPosts;
 
     private String executionMessage;
 

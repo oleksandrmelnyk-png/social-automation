@@ -1,18 +1,17 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.repository;
 
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-public interface TikTokRepository extends JpaRepository<TikTokAccount, String> {
+public interface TikTokRepository extends JpaRepository<TikTokBaseAccount, String> {
 
-    List<TikTokAccount> findAllByStatus(Status status);
+    List<TikTokBaseAccount> findAllByStatus(Status status);
 
     void deleteAllByStatus(Status status);
 
-    List<TikTokAccount> findAllByEmailIn(Collection<String> emails);
+    List<TikTokBaseAccount> findAllByEmailIn(Collection<String> emails);
 }

@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.system.service;
 
 import com.kayleighrichmond.social_automation.common.AccountCreator;
-import com.kayleighrichmond.social_automation.common.LikeHandler;
+import com.kayleighrichmond.social_automation.common.LikeActionHandler;
 import com.kayleighrichmond.social_automation.common.registry.AccountRegistry;
 import com.kayleighrichmond.social_automation.common.registry.LikeHandlerRegistry;
 import com.kayleighrichmond.social_automation.system.controller.dto.LikePostsRequest;
@@ -23,7 +23,7 @@ public class SocialService {
     }
 
     public void processLikePosts(String accountId, LikePostsRequest likePostsRequest) {
-        LikeHandler likeHandler = likeHandlerRegistry.getLikeHandler(likePostsRequest.getPlatform());
-        likeHandler.processLikePosts(accountId, likePostsRequest);
+        LikeActionHandler likeActionHandler = likeHandlerRegistry.getLikeHandler(likePostsRequest.getPlatform());
+        likeActionHandler.processLikePosts(accountId, likePostsRequest);
     }
 }
