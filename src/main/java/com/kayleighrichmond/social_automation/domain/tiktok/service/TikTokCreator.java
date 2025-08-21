@@ -3,7 +3,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.AccountCreator;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.builder.TikTokAccountBuilder;
@@ -59,14 +59,14 @@ public class TikTokCreator implements AccountCreator {
 
     @Override
     public void processAccountCreation(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLinked(createAccountsRequest.getCountryCode(), appProps.getAccountsPerProxy(), createAccountsRequest.getAmount());
+        List<Proxy> proxies = proxyService.findAllVerifiedByCountryCodeAndAccountsLimit(createAccountsRequest.getCountryCode(), appProps.getAccountsPerProxy(), createAccountsRequest.getAmount());
 
-        List<TikTokBaseAccount> tikTokAccountsWithProxies = proxies.stream().map(tikTokAccountBuilder::buildWithProxy).toList();
-        List<TikTokBaseAccount> savedTikTokAccounts = tikTokService.saveAll(tikTokAccountsWithProxies);
+        List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream().map(tikTokAccountBuilder::buildWithProxy).toList();
+        List<TikTokAccount> savedTikTokAccounts = tikTokService.saveAll(tikTokAccountsWithProxies);
 
         int createdCount = 0;
         for (Proxy proxy : proxies) {
-            TikTokBaseAccount tikTokAccount = savedTikTokAccounts.get(createdCount);
+            TikTokAccount tikTokAccount = savedTikTokAccounts.get(createdCount);
             while (proxy.getAccountsLinked() < appProps.getAccountsPerProxy() && createdCount < createAccountsRequest.getAmount()) {
                 try {
                     CreateProfileResponse createProfileResponse = initializeNstAndStartAccountCreation(proxy, tikTokAccount);
@@ -95,7 +95,7 @@ public class TikTokCreator implements AccountCreator {
         }
     }
 
-    private CreateProfileResponse initializeNstAndStartAccountCreation(Proxy proxy, TikTokBaseAccount tikTokAccount) {
+    private CreateProfileResponse initializeNstAndStartAccountCreation(Proxy proxy, TikTokAccount tikTokAccount) {
         CreateProfileResponse createProfileResponse = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
         PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(createProfileResponse.getData().getProfileId());
 
@@ -116,7 +116,7 @@ public class TikTokCreator implements AccountCreator {
         return createProfileResponse;
     }
 
-    private void processAccountRegistration(TikTokBaseAccount tikTokAccount, Page page) {
+    private void processAccountRegistration(TikTokAccount tikTokAccount, Page page) {
         LocalDate dotDate = LocalDate.parse(tikTokAccount.getDob().getDate().substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         try {

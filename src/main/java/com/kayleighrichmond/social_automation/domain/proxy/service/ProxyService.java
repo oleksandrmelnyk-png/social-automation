@@ -33,8 +33,8 @@ public class ProxyService {
         return proxyRepository.findAllByCountryCode(countryCode);
     }
 
-    public List<Proxy> findAllVerifiedByCountryCodeAndAccountsLinked(String countryCode, int accountsLinkedMax, int accountCount) {
-        List<Proxy> proxies = proxyRepository.finaAllByCountryCodeVerifiedAndMaxAccounts(countryCode, true, accountsLinkedMax, accountCount);
+    public List<Proxy> findAllVerifiedByCountryCodeAndAccountsLimit(String countryCode, int accountsLinkedMax, int limit) {
+        List<Proxy> proxies = proxyRepository.findAllByCountryCodeVerifiedAccountsLimit(countryCode, true, accountsLinkedMax, limit);
 
         if (proxies.isEmpty()) {
             throw new NoProxiesAvailableException("No proxies available by country code: " + countryCode);

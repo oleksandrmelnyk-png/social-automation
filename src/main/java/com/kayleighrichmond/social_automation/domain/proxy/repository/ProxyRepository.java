@@ -13,13 +13,13 @@ public interface ProxyRepository extends JpaRepository<Proxy, String> {
     @Query(value = "SELECT * FROM proxy " +
             "WHERE country_code = :countryCode " +
             "AND verified = :verified " +
-            "AND accounts_linked < :maxAccounts " +
+            "AND accounts_linked < :accountsLinkedMax " +
             "LIMIT :limit",
             nativeQuery = true)
-    List<Proxy> finaAllByCountryCodeVerifiedAndMaxAccounts(
+    List<Proxy> findAllByCountryCodeVerifiedAccountsLimit(
             @Param("countryCode") String countryCode,
             @Param("verified") boolean verified,
-            @Param("maxAccounts") int maxAccounts,
+            @Param("accountsLinkedMax") int accountsLinkedMax,
             @Param("limit") int limit
     );
 

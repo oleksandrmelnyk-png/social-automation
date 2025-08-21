@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
@@ -23,7 +23,7 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
     public void handle(Exception e, Object target) {
         verifyArgument(target.getClass());
-        TikTokBaseAccount tikTokAccount = (TikTokBaseAccount) target;
+        TikTokAccount tikTokAccount = (TikTokAccount) target;
 
         if (e instanceof CaptchaException) {
             handleCaptchaException(tikTokAccount);
@@ -42,12 +42,12 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
     @Override
     public void verifyArgument(Class<?> clazz) throws IllegalArgumentException {
-        if (!clazz.equals(TikTokBaseAccount.class)) {
+        if (!clazz.equals(TikTokAccount.class)) {
             throw new IllegalArgumentException("TikTokAccount required");
         }
     }
 
-    private void handleCaptchaException(TikTokBaseAccount tikTokAccount) {
+    private void handleCaptchaException(TikTokAccount tikTokAccount) {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .status(Status.FAILED)
                 .executionMessage("Captcha appearance")

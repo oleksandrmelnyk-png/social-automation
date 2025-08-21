@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class TikTokBaseAccount extends BaseAccount {
+public class TikTokAccount extends BaseAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

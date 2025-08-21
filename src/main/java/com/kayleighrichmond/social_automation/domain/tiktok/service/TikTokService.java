@@ -3,7 +3,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 import com.kayleighrichmond.social_automation.common.exception.AccountNotFoundException;
 import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
 import com.kayleighrichmond.social_automation.common.type.Action;
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.repository.TikTokRepository;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
@@ -19,26 +19,26 @@ public class TikTokService {
 
     private final TikTokRepository tikTokRepository;
 
-    public TikTokBaseAccount findById(String id) {
+    public TikTokAccount findById(String id) {
         return tikTokRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException("Not found tik tok account by id " + id));
     }
 
-    public List<TikTokBaseAccount> findAll() {
+    public List<TikTokAccount> findAll() {
         return tikTokRepository.findAll();
     }
 
-    public List<TikTokBaseAccount> findAllByStatus(Status status) {
+    public List<TikTokAccount> findAllByStatus(Status status) {
         return tikTokRepository.findAllByStatus(status);
     }
 
-    public List<TikTokBaseAccount> saveAll(List<TikTokBaseAccount> tikTokAccounts) {
+    public List<TikTokAccount> saveAll(List<TikTokAccount> tikTokAccounts) {
         throwIfAccountsInProgressExists(Status.IN_PROGRESS);
         return tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
     }
 
     public void update(String id, UpdateAccountRequest updateAccountRequest) {
-        TikTokBaseAccount tikTokAccount = findById(id);
+        TikTokAccount tikTokAccount = findById(id);
 
         Optional.ofNullable(updateAccountRequest.getName()).ifPresent(tikTokAccount::setName);
         Optional.ofNullable(updateAccountRequest.getEmail()).ifPresent(tikTokAccount::setEmail);
@@ -57,9 +57,9 @@ public class TikTokService {
 
     @Transactional
     public void updateAllFromCreationStatusInProgressToFailed(String executionMessage) {
-        List<TikTokBaseAccount> allTikTokAccountsInProgress = findAllByStatus(Status.IN_PROGRESS);
+        List<TikTokAccount> allTikTokAccountsInProgress = findAllByStatus(Status.IN_PROGRESS);
 
-        for (TikTokBaseAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
             tikTokAccountsInProgress.setStatus(Status.FAILED);
             tikTokAccountsInProgress.setExecutionMessage(executionMessage);
         }
@@ -80,15 +80,15 @@ public class TikTokService {
         tikTokRepository.deleteAllByStatus(status);
     }
 
-    private List<TikTokBaseAccount> retrieveNotExistingAccounts(List<TikTokBaseAccount> tikTokAccounts) {
+    private List<TikTokAccount> retrieveNotExistingAccounts(List<TikTokAccount> tikTokAccounts) {
         List<String> emails = tikTokAccounts.stream()
-                .map(TikTokBaseAccount::getEmail)
+                .map(TikTokAccount::getEmail)
                 .filter(Objects::nonNull)
                 .toList();
 
         Set<String> existingEmails = new HashSet<>(tikTokRepository.findAllByEmailIn(emails)
                 .stream()
-                .map(TikTokBaseAccount::getEmail)
+                .map(TikTokAccount::getEmail)
                 .toList());
 
         return tikTokAccounts.stream()
@@ -97,7 +97,7 @@ public class TikTokService {
     }
 
     private void throwIfAccountsInProgressExists(Status status) {
-        List<TikTokBaseAccount> tikTokAccounts = findAllByStatus(status);
+        List<TikTokAccount> tikTokAccounts = findAllByStatus(status);
         if (!tikTokAccounts.isEmpty()) {
             throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
         }

@@ -2,7 +2,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
 import com.kayleighrichmond.social_automation.common.exception.AccountIsInActionException;
 import com.kayleighrichmond.social_automation.common.type.Action;
-import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokBaseAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.LikeActionHandler;
@@ -38,12 +38,7 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
 
     @Override
     public void processLikePosts(String accountId, LikePostsRequest likePostsRequest) {
-        TikTokBaseAccount tikTokAccount = tikTokService.findById(accountId);
-
-        if (tikTokAccount.getAction() != null && tikTokAccount.getAction() != Action.ACTED && tikTokAccount.getAction() != Action.FAILED) {
-            throw new AccountIsInActionException("This account is already in action");
-        }
-
+        TikTokAccount tikTokAccount = getAccountIfNotInAction(accountId);
         try {
             tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().action(Action.LIKING).build());
             initializeNstAndStartAccountCreation(tikTokAccount, likePostsRequest);
@@ -61,7 +56,7 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
         }
     }
 
-    private void initializeNstAndStartAccountCreation(TikTokBaseAccount tikTokAccount, LikePostsRequest likePostsRequest) throws InterruptedException {
+    private void initializeNstAndStartAccountCreation(TikTokAccount tikTokAccount, LikePostsRequest likePostsRequest) throws InterruptedException {
         PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
         Page page = playwrightDto.getPage();
 
@@ -78,7 +73,7 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
         log.info("Successfully finished liking videos");
     }
 
-    private void processLogIn(Page page, TikTokBaseAccount tikTokAccount) throws InterruptedException {
+    private void processLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
 
         page.navigate(TIKTOK_SIGN_IN_BROWSER_URL);
 
@@ -138,6 +133,15 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
                 }
             });
         }
+    }
+
+    private TikTokAccount getAccountIfNotInAction(String accountId) {
+        TikTokAccount tikTokAccount = tikTokService.findById(accountId);
+        if (tikTokAccount.getAction() != null && tikTokAccount.getAction() != Action.ACTED && tikTokAccount.getAction() != Action.FAILED) {
+            throw new AccountIsInActionException("This account is already in action");
+        }
+
+        return tikTokAccount;
     }
 
     private void watchVideoAndLike(Page page, int videoIndex) throws InterruptedException {
