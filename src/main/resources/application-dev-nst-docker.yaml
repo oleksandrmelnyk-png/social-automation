@@ -1,12 +1,12 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres_kayleigh:5432/myapp_db
+    url: jdbc:postgresql://localhost:5449/myapp_db
     username: myapp_user
     password: supersecretpassword
     driver-class-name: org.postgresql.Driver
 nst-browser:
-  host: 194.163.164.118
+  host: localhost
   port: 8000
   api-key: 7ffc59e4-8b42-4db8-b0c6-c996c4570360
-  url: http://194.163.164.118:8000/api/v2
-  headless: false
+  url: http://localhost:8000/api/v2
+  headless: true

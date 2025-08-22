@@ -1,0 +1,44 @@
+package com.kayleighrichmond.social_automation.system.controller.validator;
+
+import com.kayleighrichmond.social_automation.common.validator.Validator;
+import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
+import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyHelper;
+import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NotEnoughProxiesException;
+import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class SocialAccountCreationValidator implements Validator {
+
+    private final ProxyHelper proxyHelper;
+
+    @Override
+    public void validate(Object target) {
+        verifyArgument(target.getClass());
+        CreateAccountsRequest createAccountsRequest = (CreateAccountsRequest) target;
+
+        List<Proxy> verifiedProxiesByCountryCode = proxyHelper.verifyProxiesByCountryCodeAndUpdate(createAccountsRequest.getCountryCode(), createAccountsRequest.getAmount());
+        List<Proxy> availableProxies = proxyHelper.getAvailableProxiesOrRotate(verifiedProxiesByCountryCode);
+
+        int amountOfProxyUsage = proxyHelper.getAmountOfProxyUsage(availableProxies);
+        if (amountOfProxyUsage < createAccountsRequest.getAmount()) {
+            throw new NotEnoughProxiesException("Not enough proxies to create %d accounts. %s available for country %s".formatted(
+                    createAccountsRequest.getAmount(),
+                    amountOfProxyUsage,
+                    createAccountsRequest.getCountryCode()
+            ));
+        }
+    }
+
+    @Override
+    public void verifyArgument(Class<?> clazz) throws IllegalArgumentException {
+        boolean verified = clazz.equals(CreateAccountsRequest.class);
+        if (!verified) {
+            throw new IllegalArgumentException("CreateAccountsRequest required");
+        }
+    }
+}
