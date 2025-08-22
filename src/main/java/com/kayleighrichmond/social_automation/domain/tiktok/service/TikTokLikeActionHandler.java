@@ -71,6 +71,9 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
             processLogIn(page, tikTokAccount);
         }
 
+        playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
+        waitRandomlyInRange(1000, 1400);
+
         processLiking(playwrightDto, likePostsRequest.getLikesCount());
         log.info("Successfully finished liking videos");
     }
