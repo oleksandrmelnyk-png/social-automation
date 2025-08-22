@@ -20,7 +20,7 @@ public class PlaywrightHelper {
     }
 
     public boolean waitForSelector(Locator locator) {
-        return waitForSelector(locator, 7000);
+        return waitForSelector(locator, 10000);
     }
 
     public boolean waitForSelector(Locator locator, int duration) {

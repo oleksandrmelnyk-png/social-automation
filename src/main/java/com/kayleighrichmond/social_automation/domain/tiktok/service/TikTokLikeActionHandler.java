@@ -48,6 +48,7 @@ public class TikTokLikeActionHandler implements LikeActionHandler {
             UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                     .action(Action.ACTED)
                     .likedPosts(tikTokAccount.getLikedPosts() + likePostsRequest.getLikesCount())
+                    .executionMessage(null)
                     .build();
             tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
         } catch (Error | Exception e) {

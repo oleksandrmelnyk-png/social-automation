@@ -78,6 +78,7 @@ public class TikTokCreator implements AccountCreator {
 
                     UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                             .status(Status.CREATED)
+                            .executionMessage(null)
                             .nstProfileId(createProfileResponse.getData().getProfileId())
                             .build();
                     tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
