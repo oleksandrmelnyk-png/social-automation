@@ -2,7 +2,7 @@ package com.kayleighrichmond.social_automation.system.controller.validator;
 
 import com.kayleighrichmond.social_automation.common.validator.Validator;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
-import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyHelper;
+import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NotEnoughProxiesException;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+// TODO avoid using validators only in reuse cases (verify this one if it's necessary to have it)
 @Component
 @RequiredArgsConstructor
 public class SocialAccountCreationValidator implements Validator {

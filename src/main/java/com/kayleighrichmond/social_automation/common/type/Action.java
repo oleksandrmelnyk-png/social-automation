@@ -2,9 +2,9 @@ package com.kayleighrichmond.social_automation.common.type;
 
 public enum Action {
 
-    LIKING,
-    COMMENTING,
-    PUBLISHING,
+    LIKE,
+    COMMENT,
+    PUBLISH,
     FAILED,
     ACTED
 

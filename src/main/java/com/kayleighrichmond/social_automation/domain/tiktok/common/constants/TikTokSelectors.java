@@ -56,6 +56,14 @@ public class TikTokSelectors {
 
     public static String NEXT_VIDEO_BUTTON = "button svg path[d^='m24 27.76']";
 
+    public static String COMMENT_TEXT_DIV = "div[data-e2e='comment-text'] div[contenteditable='true']";
+
+    public static String POST_COMMENT_DIV = "div[data-e2e='comment-post']";
+
+    public static String selectCommentButton(int videoIndex) {
+        return "article[data-scroll-index='%d'] button[aria-label^='Read or add comments']".formatted(videoIndex);
+    }
+
     public static String selectLikeButton(int videoIndex) {
         return "article[data-scroll-index='%d'] button[aria-label^='Like video']".formatted(videoIndex);
     }

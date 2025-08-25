@@ -1,9 +1,11 @@
-package com.kayleighrichmond.social_automation.domain.proxy.service;
+package com.kayleighrichmond.social_automation.common.helper;
 
 import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyRotationFailed;
+import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
+import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyVerifier;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

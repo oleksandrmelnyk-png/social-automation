@@ -1,5 +1,8 @@
 package com.kayleighrichmond.social_automation.system.controller;
 
+import com.kayleighrichmond.social_automation.common.type.Action;
+import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.system.controller.dto.CommentPostsRequest;
 import com.kayleighrichmond.social_automation.system.service.SocialService;
 import com.kayleighrichmond.social_automation.system.controller.dto.LikePostsRequest;
 import com.kayleighrichmond.social_automation.system.controller.validator.SocialAccountCreationValidator;
@@ -24,8 +27,8 @@ public class SocialController {
         socialService.processAccountsCreation(createAccountsRequest);
     }
 
-    @PostMapping("/like-posts/account/{id}")
-    public void likeAccounts(@PathVariable String id, @Valid @RequestBody LikePostsRequest likePostsRequest) {
-        socialService.processLikePosts(id, likePostsRequest);
+    @PostMapping("/action")
+    public void likPosts(@RequestParam String accountId, @Valid @RequestBody ActionRequest actionRequest) {
+        socialService.processAction(accountId, actionRequest);
     }
 }

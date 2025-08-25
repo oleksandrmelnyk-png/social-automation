@@ -5,7 +5,7 @@ import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
-import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyHelper;
+import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import lombok.RequiredArgsConstructor;

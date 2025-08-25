@@ -21,6 +21,7 @@ public class RandomUserClient {
 
     private final ObjectMapper objectMapper;
 
+    // TODO validate email generation remove ` from french emails
 
     public RandomUserResponse.RandomResult getRandomUser() {
         try {

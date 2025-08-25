@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.model;
 
-import com.kayleighrichmond.social_automation.common.base.BaseAccount;
+import com.kayleighrichmond.social_automation.common.BaseAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.embedded.Dob;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.embedded.Name;
 import jakarta.persistence.*;

@@ -54,6 +54,7 @@ public class ProxyService {
             GetProxyAddressResponse proxyAddress = ipApiClient.getProxyAddress(proxy);
             proxy.setCountryCode(proxyAddress.getCountryCode());
             proxy.setAccountsLinked(0);
+            proxy.setVerified(true);
 
             proxies.add(proxy);
         }

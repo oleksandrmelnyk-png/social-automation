@@ -6,7 +6,7 @@ import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotVerifiedException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
-import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyHelper;
+import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyVerifier;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;

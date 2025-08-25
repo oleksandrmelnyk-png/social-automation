@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.common.base;
+package com.kayleighrichmond.social_automation.common;
 
 import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.common.type.Status;
@@ -30,6 +30,8 @@ public abstract class BaseAccount {
     private Action action;
 
     private int likedPosts;
+
+    private int commentedPosts;
 
     private String accountLink;
 
