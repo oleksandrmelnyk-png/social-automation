@@ -1,17 +1,22 @@
 package com.kayleighrichmond.social_automation.domain.proxy.common.mapper;
 
+import com.kayleighrichmond.social_automation.common.mapper.SimpleMapper;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.AddProxyRequest;
+import org.springframework.stereotype.Component;
 
-public class ProxyMapper {
+@Component
+public class ProxyMapper implements SimpleMapper<AddProxyRequest.ProxyRequest, Proxy> {
 
-    public static Proxy mapProxyRequestToProxy(AddProxyRequest.ProxyRequest proxyRequest) {
+    @Override
+    public Proxy mapDtoToEntity(AddProxyRequest.ProxyRequest dto) {
         return Proxy.builder()
-                .username(proxyRequest.getUsername())
-                .password(proxyRequest.getPassword())
-                .host(proxyRequest.getHost())
-                .port(proxyRequest.getPort())
-                .rebootLink(proxyRequest.getRebootLink())
+                .username(dto.getUsername())
+                .password(dto.getPassword())
+                .host(dto.getHost())
+                .port(dto.getPort())
+                .rebootLink(dto.getRebootLink())
                 .build();
     }
+
 }

@@ -26,6 +26,8 @@ public class UpdateAccountRequest {
 
     private Integer commentedPosts;
 
+    private Integer publishedPosts;
+
     private String executionMessage;
 
     private Dob dob;

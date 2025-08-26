@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.proxy.service;
 
+import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.repository.ProxyRepository;
 import com.kayleighrichmond.social_automation.system.client.ip_api.IpApiClient;
@@ -21,19 +22,25 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProxyService {
 
+    private final IpApiClient ipApiClient;
+
+    private final ProxyMapper proxyMapper;
+
     private final ProxyRepository proxyRepository;
 
-    private final IpApiClient ipApiClient;
+    private final ProxyHelper proxyHelper;
+
+    private final ProxyVerifier proxyVerifier;
 
     public List<Proxy> findAll() {
         return proxyRepository.findAll();
     }
 
-    public List<Proxy> findAllByCountryCode(String countryCode) {
-        return proxyRepository.findAllByCountryCode(countryCode);
+    public List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified) {
+        return proxyRepository.findAllByCountryCodeAndVerified(countryCode, verified);
     }
 
-    public List<Proxy> findAllVerifiedByCountryCodeAndAccountsLimit(String countryCode, int accountsLinkedMax, int limit) {
+    public List<Proxy> findAllByCountryCodeAndVerifiedAndAccountsLimit(String countryCode, int accountsLinkedMax, int limit) {
         List<Proxy> proxies = proxyRepository.findAllByCountryCodeVerifiedAccountsLimit(countryCode, true, accountsLinkedMax, limit);
 
         if (proxies.isEmpty()) {
@@ -48,9 +55,14 @@ public class ProxyService {
         List<AddProxyRequest.ProxyRequest> proxyRequests = addProxyRequest.getProxies();
 
         for (AddProxyRequest.ProxyRequest proxyRequest : proxyRequests) {
+            Proxy proxy = proxyMapper.mapDtoToEntity(proxyRequest);
+            proxyHelper.verifyOrThrow(proxy);
+        }
+
+        for (AddProxyRequest.ProxyRequest proxyRequest : proxyRequests) {
             throwIfProxyExistsByUsername(proxyRequest.getUsername());
 
-            Proxy proxy = ProxyMapper.mapProxyRequestToProxy(proxyRequest);
+            Proxy proxy = proxyMapper.mapDtoToEntity(proxyRequest);
             GetProxyAddressResponse proxyAddress = ipApiClient.getProxyAddress(proxy);
             proxy.setCountryCode(proxyAddress.getCountryCode());
             proxy.setAccountsLinked(0);
@@ -60,6 +72,19 @@ public class ProxyService {
         }
 
         proxyRepository.saveAll(proxies);
+    }
+
+    public void verifyAll() {
+        List<Proxy> proxies = proxyRepository.findAll();
+
+        for (Proxy proxy : proxies) {
+            boolean verifiedProxy = proxyVerifier.verifyProxy(proxy, false);
+            if (verifiedProxy && !proxy.isVerified()) {
+                update(proxy.getId(), UpdateProxyRequest.builder().verified(true).build());
+            } else if (!verifiedProxy && proxy.isVerified()) {
+                update(proxy.getId(), UpdateProxyRequest.builder().verified(false).build());
+            }
+        }
     }
 
     public void update(String id, UpdateProxyRequest updateProxyRequest) {

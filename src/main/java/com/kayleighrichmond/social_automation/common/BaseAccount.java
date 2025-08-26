@@ -33,6 +33,8 @@ public abstract class BaseAccount {
 
     private int commentedPosts;
 
+    private int publishedPosts;
+
     private String accountLink;
 
     @ManyToOne

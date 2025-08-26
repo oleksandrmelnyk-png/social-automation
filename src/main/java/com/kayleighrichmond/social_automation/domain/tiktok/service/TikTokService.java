@@ -52,6 +52,7 @@ public class TikTokService {
         Optional.ofNullable(updateAccountRequest.getAction()).ifPresent(tikTokAccount::setAction);
         Optional.ofNullable(updateAccountRequest.getLikedPosts()).ifPresent(tikTokAccount::setLikedPosts);
         Optional.ofNullable(updateAccountRequest.getCommentedPosts()).ifPresent(tikTokAccount::setCommentedPosts);
+        Optional.ofNullable(updateAccountRequest.getPublishedPosts()).ifPresent(tikTokAccount::setPublishedPosts);
 
         tikTokRepository.save(tikTokAccount);
     }

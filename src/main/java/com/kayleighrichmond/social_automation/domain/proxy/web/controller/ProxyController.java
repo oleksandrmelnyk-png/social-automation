@@ -2,7 +2,6 @@ package com.kayleighrichmond.social_automation.domain.proxy.web.controller;
 
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
-import com.kayleighrichmond.social_automation.domain.proxy.web.validator.AddProxiesValidator;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.AddProxyRequest;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRequest;
 import jakarta.validation.Valid;
@@ -19,11 +18,8 @@ public class ProxyController {
 
     private final ProxyService proxyService;
 
-    private final AddProxiesValidator addProxiesValidator;
-
     @PostMapping("/all")
     public void addProxies(@Valid @RequestBody AddProxyRequest addProxyRequest) {
-        addProxiesValidator.validate(addProxyRequest);
         proxyService.saveAll(addProxyRequest);
     }
 
@@ -37,5 +33,8 @@ public class ProxyController {
         proxyService.update(id, updateProxyRequest);
     }
 
-    // TODO create endpoint for reverifying all proxies to avoid verification while accounts creation
+    @PostMapping("/all/verify")
+    public void verifyAll() {
+        proxyService.verifyAll();
+    }
 }

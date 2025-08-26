@@ -60,6 +60,18 @@ public class TikTokSelectors {
 
     public static String POST_COMMENT_DIV = "div[data-e2e='comment-post']";
 
+    public static String UPLOAD_DIV = "div.TUXButton-content:has-text('Upload')";
+
+    public static String UPLOAD_VIDEO_INPUT = "input[type='file']";
+
+    public static String CANCEL_BUTTON = "button:has-text('Cancel')";
+
+    public static String UPLOADED_SPAN = "text=Uploaded";
+
+    public static String POST_BUTTON = "button[data-e2e='post_video_button']";
+
+    public static String VIDEO_PUBLISHED_SPAN = "text=Video published";
+
     public static String selectCommentButton(int videoIndex) {
         return "article[data-scroll-index='%d'] button[aria-label^='Read or add comments']".formatted(videoIndex);
     }

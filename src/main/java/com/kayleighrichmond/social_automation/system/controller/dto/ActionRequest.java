@@ -17,7 +17,7 @@ public class ActionRequest {
     private Action action;
 
     @Min(value = 1, message = "Minimum actions is 1")
-    @Max(value = 20, message = "Maximum actions is 20")
+    @Max(value = 1, message = "Maximum actions is 1")
     private Integer actionsCount;
 
 }

@@ -1,7 +1,9 @@
 package com.kayleighrichmond.social_automation.system.service;
 
-import com.kayleighrichmond.social_automation.common.*;
-import com.kayleighrichmond.social_automation.common.registry.*;
+import com.kayleighrichmond.social_automation.common.command.AccountCommand;
+import com.kayleighrichmond.social_automation.common.command.ActionCommand;
+import com.kayleighrichmond.social_automation.common.command.ProxyCommand;
+import com.kayleighrichmond.social_automation.common.factory.*;
 import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,22 +13,22 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SocialService {
 
-    private final AccountRegistry accountRegistry;
+    private final AccountFactory accountFactory;
 
-    private final ProxyResolverRegistry proxyResolverRegistry;
+    private final ProxyFactory proxyFactory;
 
-    private final ActionHandlerRegistry actionHandlerRegistry;
+    private final ActionFactory actionFactory;
 
     public void processAccountsCreation(CreateAccountsRequest createAccountsRequest) {
-        AccountCreator accountCreator = accountRegistry.getAccountCreator(createAccountsRequest.getPlatform());
-        accountCreator.processAccountCreation(createAccountsRequest);
+        AccountCommand accountCommand = accountFactory.getAccountCommand(createAccountsRequest.getPlatform());
+        accountCommand.executeAccountCreation(createAccountsRequest);
     }
 
     public void processAction(String accountId, ActionRequest actionRequest) {
-        ProxyResolver proxyResolver = proxyResolverRegistry.getProxyResolver(actionRequest.getPlatform());
-        proxyResolver.resolveActiveProxy(accountId);
+        ProxyCommand proxyCommand = proxyFactory.getProxyCommand(actionRequest.getPlatform());
+        proxyCommand.executeActiveProxy(accountId);
 
-        ActionHandler actionHandler = actionHandlerRegistry.getActionHandler(actionRequest.getPlatform(), actionRequest.getAction());
-        actionHandler.processAction(accountId, actionRequest);
+        ActionCommand actionCommand = actionFactory.getActionCommand(actionRequest.getPlatform(), actionRequest.getAction());
+        actionCommand.executeAction(accountId, actionRequest);
     };
 }
