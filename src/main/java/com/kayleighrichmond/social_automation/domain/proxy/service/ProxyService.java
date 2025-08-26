@@ -74,17 +74,24 @@ public class ProxyService {
         proxyRepository.saveAll(proxies);
     }
 
-    public void verifyAll() {
+    public List<Proxy> verifyAll() {
         List<Proxy> proxies = proxyRepository.findAll();
+        List<Proxy> verifiedProxies = new ArrayList<>();
 
         for (Proxy proxy : proxies) {
             boolean verifiedProxy = proxyVerifier.verifyProxy(proxy, false);
+            if (verifiedProxy) {
+                verifiedProxies.add(proxy);
+            }
+
             if (verifiedProxy && !proxy.isVerified()) {
                 update(proxy.getId(), UpdateProxyRequest.builder().verified(true).build());
             } else if (!verifiedProxy && proxy.isVerified()) {
                 update(proxy.getId(), UpdateProxyRequest.builder().verified(false).build());
             }
         }
+
+        return verifiedProxies;
     }
 
     public void update(String id, UpdateProxyRequest updateProxyRequest) {

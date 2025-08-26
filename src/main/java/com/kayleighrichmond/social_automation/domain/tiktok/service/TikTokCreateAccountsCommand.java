@@ -52,9 +52,7 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
 
     @Override
     public void executeAccountCreation(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> proxies = getAvailableProxies(createAccountsRequest).subList(0, createAccountsRequest.getAmount())
-                .stream()
-                .toList();
+        List<Proxy> proxies = getAvailableProxies(createAccountsRequest);
 
         List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream()
                 .map(tikTokAccountBuilder::buildWithProxy)
@@ -94,8 +92,13 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
     }
 
     private List<Proxy> getAvailableProxies(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> proxyServiceAllByCountryCodeAndVerified = proxyService.findAllByCountryCodeAndVerified(createAccountsRequest.getCountryCode(), true);
-        List<Proxy> availableProxies = proxyHelper.getAvailableProxiesOrRotate(proxyServiceAllByCountryCodeAndVerified);
+        List<Proxy> verifiedProxies = proxyService.verifyAll();
+        List<Proxy> filteredProxiesByCountryCodeAndLimited = verifiedProxies.stream()
+                .filter(proxy -> proxy.getCountryCode().equals(createAccountsRequest.getCountryCode()))
+                .limit(createAccountsRequest.getAmount())
+                .toList();
+
+        List<Proxy> availableProxies = proxyHelper.getAvailableProxiesOrRotate(filteredProxiesByCountryCodeAndLimited);
 
         for (Proxy availableProxy : availableProxies) {
             if (availableProxy.getAccountsLinked() == appProps.getAccountsPerProxy()) {

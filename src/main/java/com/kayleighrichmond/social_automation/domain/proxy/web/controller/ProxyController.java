@@ -32,9 +32,4 @@ public class ProxyController {
     public void update(@PathVariable String id, @RequestBody UpdateProxyRequest updateProxyRequest) {
         proxyService.update(id, updateProxyRequest);
     }
-
-    @PostMapping("/all/verify")
-    public void verifyAll() {
-        proxyService.verifyAll();
-    }
 }
