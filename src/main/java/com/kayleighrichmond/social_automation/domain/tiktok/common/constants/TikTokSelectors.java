@@ -46,7 +46,7 @@ public class TikTokSelectors {
 
     public static String SELECT_ADD = "div.webapp-pa-prompt_container__pa_button";
 
-    public static String CAPTCHA_DIV = "#captcha-verify-container-main-page";
+    public static String CAPTCHA = "#recaptcha-anchor";
 
     public static String LANGUAGE_SELECT = "select.tiktok-vm0biq-SelectFormContainer";
 

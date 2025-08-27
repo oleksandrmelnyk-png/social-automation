@@ -149,7 +149,7 @@ public class TikTokPlaywrightHelper {
             waitRandomlyInRange(1300, 1700);
             page.click(SEND_CODE_BUTTON);
 
-            playwrightHelper.waitForSelectorAndAct(page, CAPTCHA_DIV, locator -> {
+            playwrightHelper.waitForSelectorAndAct(page, CAPTCHA, locator -> {
                 throw new CaptchaException("Captcha appeared");
             });
 
