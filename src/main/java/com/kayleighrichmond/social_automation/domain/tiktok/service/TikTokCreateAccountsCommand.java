@@ -84,7 +84,7 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
                 } catch (Error e) {
                     log.error(e.getMessage());
                     tikTokService.updateAllFromCreationStatusInProgressToFailed("Unexpected server exception");
-                    throw new ServerException(e.getMessage());
+                    throw new ServerException("Something went wrong while account creation");
                 }
                 createdCount++;
             }
@@ -92,8 +92,8 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
     }
 
     private List<Proxy> getAvailableProxies(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> verifiedProxies = proxyService.verifyAll();
-        List<Proxy> filteredProxiesByCountryCodeAndLimited = verifiedProxies.stream()
+        List<Proxy> verifiedProxiesByCountryCode = proxyService.verifyAllByCountryCode(createAccountsRequest.getCountryCode());
+        List<Proxy> filteredProxiesByCountryCodeAndLimited = verifiedProxiesByCountryCode.stream()
                 .filter(proxy -> proxy.getCountryCode().equals(createAccountsRequest.getCountryCode()))
                 .limit(createAccountsRequest.getAmount())
                 .toList();

@@ -74,11 +74,11 @@ public class ProxyService {
         proxyRepository.saveAll(proxies);
     }
 
-    public List<Proxy> verifyAll() {
-        List<Proxy> proxies = proxyRepository.findAll();
+    public List<Proxy> verifyAllByCountryCode(String countryCode) {
+        List<Proxy> proxiesByCountryCode = proxyRepository.findAllByCountryCode(countryCode);
         List<Proxy> verifiedProxies = new ArrayList<>();
 
-        for (Proxy proxy : proxies) {
+        for (Proxy proxy : proxiesByCountryCode) {
             boolean verifiedProxy = proxyVerifier.verifyProxy(proxy, false);
             if (verifiedProxy) {
                 verifiedProxies.add(proxy);

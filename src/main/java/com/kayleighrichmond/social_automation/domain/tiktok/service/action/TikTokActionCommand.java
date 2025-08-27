@@ -50,7 +50,7 @@ public abstract class TikTokActionCommand implements ActionCommand {
             // TODO add an Error handler for throwing NstBrowserException in creation account as well
             tikTokService.updateFromActionStatusInProgressToFailedById(accountId, "Unexpected server exception");
             log.error(e.getMessage());
-            throw new ServerException("Something went wrong with posts liking");
+            throw new ServerException("Something went wrong while action: " + actionRequest.getAction());
         }
     }
 

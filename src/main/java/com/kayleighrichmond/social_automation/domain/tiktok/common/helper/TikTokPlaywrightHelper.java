@@ -33,6 +33,7 @@ public class TikTokPlaywrightHelper {
         log.info("Logging in");
 
         page.navigate(TIKTOK_SIGN_IN_BROWSER_URL);
+        page.waitForLoadState();
 
         page.waitForSelector(HOME_L0G_IN);
         Thread.sleep(1200 + (long)(Math.random() * 1600));
@@ -96,6 +97,7 @@ public class TikTokPlaywrightHelper {
         try {
             log.info("Opening browser");
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
+            page.waitForLoadState();
 
             page.waitForSelector(HOME_SIGN_UP);
             waitRandomlyInRange(1000, 2000);

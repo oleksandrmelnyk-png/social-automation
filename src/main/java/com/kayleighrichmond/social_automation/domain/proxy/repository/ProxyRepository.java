@@ -23,6 +23,8 @@ public interface ProxyRepository extends JpaRepository<Proxy, String> {
             @Param("limit") int limit
     );
 
+    List<Proxy> findAllByCountryCode(String countryCode);
+
     List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified);
 
     Optional<Proxy> findByUsername(String username);
