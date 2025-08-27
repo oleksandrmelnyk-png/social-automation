@@ -11,8 +11,12 @@ import java.util.function.Consumer;
 public class PlaywrightHelper {
 
     public void waitForSelectorAndAct(Page page, String selector, Consumer<Locator> consumer) {
+        waitForSelectorAndAct(10000, page, selector, consumer);
+    }
+
+    public void waitForSelectorAndAct(int duration, Page page, String selector, Consumer<Locator> consumer) {
         Locator locator = page.locator(selector);
-        boolean appeared = waitForSelector(locator);
+        boolean appeared = waitForSelector(locator, duration);
 
         if (appeared) {
             consumer.accept(locator);

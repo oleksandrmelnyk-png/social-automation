@@ -47,7 +47,6 @@ public abstract class TikTokActionCommand implements ActionCommand {
             tearDownAccountAction(tikTokAccount, actionRequest);
             log.info("Successfully acted");
         } catch (Error | Exception e) {
-            // TODO add an Error handler for throwing NstBrowserException in creation account as well
             tikTokService.updateFromActionStatusInProgressToFailedById(accountId, "Unexpected server exception");
             log.error(e.getMessage());
             throw new ServerException("Something went wrong while action: " + actionRequest.getAction());

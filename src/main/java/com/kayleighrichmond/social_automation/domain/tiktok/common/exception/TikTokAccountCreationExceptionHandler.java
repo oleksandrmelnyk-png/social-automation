@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 
+import com.kayleighrichmond.social_automation.common.exception.BrowserCaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
@@ -30,6 +31,11 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
             return;
         }
 
+        if (e instanceof BrowserCaptchaException) {
+            handleBrowserCaptchaException(tikTokAccount);
+            return;
+        }
+
         handleDefault(e);
     }
 
@@ -57,5 +63,16 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
         proxyHelper.rotateProxyAndResetAccountsLinked(tikTokAccount.getProxy());
+    }
+
+    private void handleBrowserCaptchaException(TikTokAccount tikTokAccount) {
+        UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
+                .status(Status.FAILED)
+                .executionMessage("Browser captcha appearance")
+                .build();
+
+        log.warn("Browser captcha appeared before entering to Tik Tok. Stopping... retry again");
+
+        tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
     }
 }

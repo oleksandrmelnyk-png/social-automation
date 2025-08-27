@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.common.helper;
 
+import com.kayleighrichmond.social_automation.common.exception.BrowserCaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
+import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BROWSER_CAPTCHA_LABEL;
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_IN_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
@@ -97,7 +99,12 @@ public class TikTokPlaywrightHelper {
         try {
             log.info("Opening browser");
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
-            page.waitForLoadState();
+
+            Locator browserCaptchaLocator = page.locator(BROWSER_CAPTCHA_LABEL);
+            boolean browserCaptchaAppeared = playwrightHelper.waitForSelector(browserCaptchaLocator, 3000);
+            if (browserCaptchaAppeared) {
+                throw new BrowserCaptchaException("Browser captcha appeared");
+            }
 
             page.waitForSelector(HOME_SIGN_UP);
             waitRandomlyInRange(1000, 2000);
@@ -167,9 +174,8 @@ public class TikTokPlaywrightHelper {
 
             page.waitForSelector(SIGN_UP_BUTTON);
             page.click(SIGN_UP_BUTTON);
-            waitRandomlyInRange(1000, 1500);
 
-            playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
+            playwrightHelper.waitForSelectorAndAct(15000, page, SELECT_ADD, Locator::click);
             waitRandomlyInRange(1000, 1400);
 
         } catch (InterruptedException e) {
