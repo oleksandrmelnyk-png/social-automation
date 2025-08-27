@@ -9,9 +9,12 @@ import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokServic
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
+import com.microsoft.playwright.PlaywrightException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -22,9 +25,14 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
     private final TikTokService tikTokService;
 
-    public void handle(Exception e, Object target) {
+    public void handle(Throwable e, Object target) {
         verifyArgument(target.getClass());
         TikTokAccount tikTokAccount = (TikTokAccount) target;
+
+        if (e instanceof PlaywrightException) {
+            handlePlaywrightException((PlaywrightException) e);
+            return;
+        }
 
         if (e instanceof CaptchaException) {
             handleCaptchaException(tikTokAccount);
@@ -39,10 +47,16 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         handleDefault(e);
     }
 
-    @Override
-    public void handleDefault(Exception e) {
+    public void handleDefault(Throwable e) {
         log.error("Default handler: {}", e.getMessage());
-        tikTokService.updateAllFromCreationStatusInProgressToFailed("Unexpected server exception");
+
+        List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByStatus(Status.IN_PROGRESS);
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setExecutionMessage("Unexpected server exception");
+        }
+        tikTokService.saveAll(allTikTokAccountsInProgress);
+
         throw new ServerException("Something went wrong while account creation");
     }
 
@@ -51,6 +65,19 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         if (!clazz.equals(TikTokAccount.class)) {
             throw new IllegalArgumentException("TikTokAccount required");
         }
+    }
+
+    private void handlePlaywrightException(PlaywrightException e) {
+        log.error(e.getMessage());
+
+        List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByStatus(Status.IN_PROGRESS);
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setExecutionMessage("Something went wrong while getting access to DOM elements. Probably bad network connection");
+        }
+        tikTokService.saveAll(allTikTokAccountsInProgress);
+
+        throw new ServerException("Something went wrong while getting access to DOM elements. Probably bad network connection");
     }
 
     private void handleCaptchaException(TikTokAccount tikTokAccount) {

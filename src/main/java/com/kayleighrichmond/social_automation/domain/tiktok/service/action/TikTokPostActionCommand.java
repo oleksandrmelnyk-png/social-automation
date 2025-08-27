@@ -4,6 +4,7 @@ import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.helper.WaitHelper;
 import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.config.PlaywrightInitializer;
+import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokActionExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
@@ -31,8 +32,8 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
 
     private final PlaywrightHelper playwrightHelper;
 
-    public TikTokPostActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper) {
-        super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper);
+    public TikTokPostActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+        super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
         this.tikTokService = tikTokService;
         this.playwrightHelper = playwrightHelper;
     }
@@ -42,7 +43,7 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.ACTED)
                 .publishedPosts(tikTokAccount.getPublishedPosts() + actionRequest.getActionsCount())
-                .executionMessage(null)
+                .executionMessage("")
                 .build();
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
     }
@@ -59,7 +60,7 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
         page.setInputFiles(UPLOAD_VIDEO_INPUT, Path.of(videoPath));
 
         Locator cancelOptionsLocator = page.locator(CANCEL_BUTTON);
-        boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 1000);
+        boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 3000);
         if (optionsAppeared) {
             page.click(CANCEL_BUTTON);
             WaitHelper.waitRandomlyInRange(1000, 2000);

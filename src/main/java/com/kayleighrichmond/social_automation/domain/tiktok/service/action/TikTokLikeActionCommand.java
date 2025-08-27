@@ -1,6 +1,7 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service.action;
 
 import com.kayleighrichmond.social_automation.common.type.Action;
+import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokActionExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
@@ -27,8 +28,8 @@ public class TikTokLikeActionCommand extends TikTokActionCommand {
 
     private final TikTokService tikTokService;
 
-    public TikTokLikeActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper) {
-        super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper);
+    public TikTokLikeActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+        super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
         this.playwrightHelper = playwrightHelper;
         this.tikTokService = tikTokService;
     }
@@ -38,7 +39,7 @@ public class TikTokLikeActionCommand extends TikTokActionCommand {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.ACTED)
                 .likedPosts(tikTokAccount.getLikedPosts() + actionRequest.getActionsCount())
-                .executionMessage(null)
+                .executionMessage("")
                 .build();
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
     }

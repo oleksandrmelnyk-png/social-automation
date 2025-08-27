@@ -88,8 +88,6 @@ public class TikTokPlaywrightHelper {
 
         Thread.sleep(1200 + (long)(Math.random() * 1600));
         page.click(LOG_IN_BUTTON);
-
-        page.waitForLoadState();
     }
 
     public void processSignUp(Page page, TikTokAccount tikTokAccount) {
@@ -186,6 +184,6 @@ public class TikTokPlaywrightHelper {
 
     public boolean isLoggedIn(Page page) {
         Locator avatarIcon = page.locator(AVATAR_ICON);
-        return playwrightHelper.waitForSelector(avatarIcon, 10000);
+        return playwrightHelper.waitForSelector(avatarIcon, 30000);
     }
 }

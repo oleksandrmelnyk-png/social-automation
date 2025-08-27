@@ -2,14 +2,12 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
 import com.kayleighrichmond.social_automation.common.exception.AccountNotFoundException;
 import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
-import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.repository.TikTokRepository;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -32,8 +30,17 @@ public class TikTokService {
         return tikTokRepository.findAllByStatus(status);
     }
 
-    public List<TikTokAccount> saveAll(List<TikTokAccount> tikTokAccounts) {
-        throwIfAccountsInProgressExists(Status.IN_PROGRESS);
+    public void saveAll(List<TikTokAccount> tikTokAccounts) {
+        tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
+    }
+
+    public List<TikTokAccount> saveAllOrThrow(List<TikTokAccount> tikTokAccounts) {
+        List<TikTokAccount> tikTokAccountsInProgress = findAllByStatus(Status.IN_PROGRESS);
+
+        if (!tikTokAccountsInProgress.isEmpty()) {
+            throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
+        }
+
         return tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
     }
 
@@ -57,27 +64,6 @@ public class TikTokService {
         tikTokRepository.save(tikTokAccount);
     }
 
-    @Transactional
-    public void updateAllFromCreationStatusInProgressToFailed(String executionMessage) {
-        List<TikTokAccount> allTikTokAccountsInProgress = findAllByStatus(Status.IN_PROGRESS);
-
-        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
-            tikTokAccountsInProgress.setStatus(Status.FAILED);
-            tikTokAccountsInProgress.setExecutionMessage(executionMessage);
-        }
-
-        tikTokRepository.saveAll(allTikTokAccountsInProgress);
-    }
-
-    public void updateFromActionStatusInProgressToFailedById(String accountId, String executionMessage) {
-        UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
-                .action(Action.FAILED)
-                .executionMessage(executionMessage)
-                .build();
-
-        update(accountId, updateAccountRequest);
-    }
-
     public void deleteAllByStatus(Status status) {
         tikTokRepository.deleteAllByStatus(status);
     }
@@ -96,12 +82,5 @@ public class TikTokService {
         return tikTokAccounts.stream()
                 .filter(acc -> !existingEmails.contains(acc.getEmail()))
                 .toList();
-    }
-
-    private void throwIfAccountsInProgressExists(Status status) {
-        List<TikTokAccount> tikTokAccounts = findAllByStatus(status);
-        if (!tikTokAccounts.isEmpty()) {
-            throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
-        }
     }
 }

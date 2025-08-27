@@ -2,7 +2,6 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.config.AppProps;
-import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NotEnoughProxiesException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
@@ -57,7 +56,7 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
         List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream()
                 .map(tikTokAccountBuilder::buildWithProxy)
                 .toList();
-        List<TikTokAccount> tikTokAccounts = tikTokService.saveAll(tikTokAccountsWithProxies);
+        List<TikTokAccount> tikTokAccounts = tikTokService.saveAllOrThrow(tikTokAccountsWithProxies);
 
         int createdCount = 0;
         for (Proxy proxy : proxies) {
@@ -79,12 +78,8 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
                     tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
 
                     log.info("TikTok account successfully created by email {}", tikTokAccount.getEmail());
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     tikTokAccountCreationExceptionHandler.handle(e, tikTokAccount);
-                } catch (Error e) {
-                    log.error(e.getMessage());
-                    tikTokService.updateAllFromCreationStatusInProgressToFailed("Unexpected server exception");
-                    throw new ServerException("Something went wrong while account creation");
                 }
                 createdCount++;
             }

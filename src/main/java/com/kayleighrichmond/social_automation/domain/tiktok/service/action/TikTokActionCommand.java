@@ -1,12 +1,12 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service.action;
 
 import com.kayleighrichmond.social_automation.common.command.ActionCommand;
+import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokActionExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
 import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
 import com.kayleighrichmond.social_automation.common.exception.AccountIsInActionException;
 import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
-import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.common.type.Status;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_FOR_YOU_URL;
+import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokSelectors.SELECT_ADD;
 
 @Slf4j
@@ -39,6 +40,8 @@ public abstract class TikTokActionCommand implements ActionCommand {
 
     private final TikTokPlaywrightHelper tikTokPlaywrightHelper;
 
+    private final TikTokActionExceptionHandler tikTokActionExceptionHandler;
+
     @Override
     public void executeAction(String accountId, ActionRequest actionRequest) {
         TikTokAccount tikTokAccount = getAccountIfNotInActionAndNotInProgress(accountId);
@@ -47,11 +50,8 @@ public abstract class TikTokActionCommand implements ActionCommand {
             initializeNstAndStartAccountCreation(tikTokAccount, actionRequest);
             tearDownAccountAction(tikTokAccount, actionRequest);
             log.info("Successfully acted");
-        } catch (Error | Exception e) {
-            // TODO handle nst exception response {"data":null,"err":true,"msg":"exceeded plan limits","code":6001}
-            tikTokService.updateFromActionStatusInProgressToFailedById(accountId, "Unexpected server exception");
-            log.error(e.getMessage());
-            throw new ServerException("Something went wrong while action: " + actionRequest.getAction());
+        } catch (Throwable e) {
+            tikTokActionExceptionHandler.handle(e, tikTokAccount);
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class TikTokActionCommand implements ActionCommand {
         page.navigate(TIKTOK_FOR_YOU_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
-            log.info("User not signed in. processing logging");
+            log.info("User not signed in. Processing logging");
             tikTokPlaywrightHelper.processLogIn(page, tikTokAccount);
         }
 
