@@ -43,7 +43,7 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
     public void handleDefault(Exception e) {
         log.error("Default handler: {}", e.getMessage());
         tikTokService.updateAllFromCreationStatusInProgressToFailed("Unexpected server exception");
-        throw new ServerException(e.getMessage());
+        throw new ServerException("Something went wrong while account creation");
     }
 
     @Override
