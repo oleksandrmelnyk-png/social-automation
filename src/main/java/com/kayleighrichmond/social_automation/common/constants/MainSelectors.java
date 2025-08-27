@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MainSelectors {
 
-    public static String BROWSER_CAPTCHA_LABEL = "iframe[src*='recaptcha']";
+    public static String BODY = "body";
 
 }

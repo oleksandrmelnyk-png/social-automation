@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BROWSER_CAPTCHA_LABEL;
+import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BODY;
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_IN_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
@@ -99,10 +99,11 @@ public class TikTokPlaywrightHelper {
             log.info("Opening browser");
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
-            Locator browserCaptchaLocator = page.locator(BROWSER_CAPTCHA_LABEL);
-            boolean browserCaptchaAppeared = playwrightHelper.waitForSelector(browserCaptchaLocator, 3000);
-            if (browserCaptchaAppeared) {
-                throw new BrowserCaptchaException("Browser captcha appeared");
+            Locator pageContent = page.locator(BODY);
+            String text = pageContent.innerText();
+            if (text.contains("Our systems have detected unusual traffic") ||
+                    text.contains("I'm not a robot")) {
+                throw new BrowserCaptchaException("Captcha or unusual traffic detected");
             }
 
             page.waitForSelector(HOME_SIGN_UP);
