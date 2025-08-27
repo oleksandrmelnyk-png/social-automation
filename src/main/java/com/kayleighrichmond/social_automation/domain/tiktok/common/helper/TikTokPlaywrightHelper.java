@@ -8,6 +8,7 @@ import com.kayleighrichmond.social_automation.system.client.mailtm.MailTmService
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,8 +35,7 @@ public class TikTokPlaywrightHelper {
     public void processLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
         log.info("Logging in");
 
-        page.navigate(TIKTOK_SIGN_IN_BROWSER_URL);
-        page.waitForLoadState();
+        page.navigate(TIKTOK_SIGN_IN_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         page.waitForSelector(HOME_L0G_IN);
         Thread.sleep(1200 + (long)(Math.random() * 1600));
@@ -62,8 +62,7 @@ public class TikTokPlaywrightHelper {
         Thread.sleep(1200 + (long)(Math.random() * 1600));
         page.click(LOG_IN_BUTTON);
 
-        page.waitForLoadState();
-        page.navigate(TIKTOK_SIGN_IN_BROWSER_URL);
+        page.navigate(TIKTOK_SIGN_IN_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         page.waitForSelector(HOME_L0G_IN);
         Thread.sleep(1200 + (long)(Math.random() * 1600));
@@ -98,7 +97,7 @@ public class TikTokPlaywrightHelper {
 
         try {
             log.info("Opening browser");
-            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
+            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
             Locator browserCaptchaLocator = page.locator(BROWSER_CAPTCHA_LABEL);
             boolean browserCaptchaAppeared = playwrightHelper.waitForSelector(browserCaptchaLocator, 3000);

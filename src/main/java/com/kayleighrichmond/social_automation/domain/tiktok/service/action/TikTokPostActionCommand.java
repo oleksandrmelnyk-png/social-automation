@@ -13,6 +13,7 @@ import com.kayleighrichmond.social_automation.system.client.playwright.dto.Playw
 import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +73,7 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
         log.info("Video uploaded successfully");
 
         page.click(POST_BUTTON);
-        page.waitForLoadState();
+        page.navigate(TIKTOK_FOR_YOU_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         Locator publishedLocator = page.locator(VIDEO_PUBLISHED_SPAN);
         boolean publishedAppeared = playwrightHelper.waitForSelector(publishedLocator);

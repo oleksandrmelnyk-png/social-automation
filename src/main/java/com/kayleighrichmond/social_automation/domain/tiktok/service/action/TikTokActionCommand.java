@@ -17,6 +17,7 @@ import com.kayleighrichmond.social_automation.system.client.playwright.Playwrigh
 import com.kayleighrichmond.social_automation.system.client.playwright.dto.PlaywrightDto;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitUntilState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,8 +59,7 @@ public abstract class TikTokActionCommand implements ActionCommand {
         Page page = playwrightDto.getPage();
 
         log.info("Opening browser");
-        page.navigate(TIKTOK_FOR_YOU_URL);
-        page.waitForLoadState();
+        page.navigate(TIKTOK_FOR_YOU_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
             log.info("User not signed in. processing logging");
