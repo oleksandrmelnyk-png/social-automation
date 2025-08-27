@@ -10,9 +10,12 @@ import com.kayleighrichmond.social_automation.domain.proxy.common.exception.Prox
 import com.kayleighrichmond.social_automation.system.client.randomuser.RandomUserApiException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class MainExceptionHandler {
@@ -106,5 +109,19 @@ public class MainExceptionHandler {
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(500))
                 .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+
+        String invalidFields = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(invalidFields);
     }
 }

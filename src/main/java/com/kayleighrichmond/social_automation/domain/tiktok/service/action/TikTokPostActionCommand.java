@@ -16,8 +16,8 @@ import com.microsoft.playwright.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_FOR_YOU_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokSelectors.*;
@@ -54,8 +54,8 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
         page.click(UPLOAD_DIV);
         page.waitForLoadState();
 
-        Path videoPath = Paths.get("src/main/resources/static/my_cat.mp4");
-        page.setInputFiles(UPLOAD_VIDEO_INPUT, Path.of(videoPath.toUri()));
+        String videoPath = new File("src/main/resources/static/my_cat.mp4").getAbsolutePath();
+        page.setInputFiles(UPLOAD_VIDEO_INPUT, Path.of(videoPath));
 
         Locator cancelOptionsLocator = page.locator(CANCEL_BUTTON);
         boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 1000);

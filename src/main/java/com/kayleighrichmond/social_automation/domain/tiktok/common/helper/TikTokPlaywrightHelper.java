@@ -155,7 +155,8 @@ public class TikTokPlaywrightHelper {
             waitRandomlyInRange(1800, 2100);
             page.click(NEXT_BUTTON);
 
-            page.waitForSelector(SIGN_UP_BUTTON);
+            Locator signUpLocator = page.locator(SIGN_UP_BUTTON);
+            playwrightHelper.waitForSelector(signUpLocator, 60000);
             waitRandomlyInRange(1000, 1500);
 
             page.waitForSelector(USERNAME_INPUT);
