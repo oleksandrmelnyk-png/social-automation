@@ -23,8 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
-import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_FOR_YOU_URL;
-import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
+import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.*;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokSelectors.SELECT_ADD;
 
 @Slf4j
@@ -60,7 +59,7 @@ public abstract class TikTokActionCommand implements ActionCommand {
         Page page = playwrightDto.getPage();
 
         log.info("Opening browser");
-        page.navigate(TIKTOK_FOR_YOU_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+        page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
             log.info("User not signed in. Processing logging");

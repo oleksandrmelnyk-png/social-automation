@@ -12,6 +12,4 @@ public class TikTokConstants {
 
     public static final String TIKTOK_SIGN_UP_BROWSER_URL = "https://www.google.com/search?q=tiktok+sign+up";
 
-    public static final String TIKTOK_FOR_YOU_URL = "https://www.tiktok.com/foryou";
-
 }

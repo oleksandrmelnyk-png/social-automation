@@ -49,12 +49,12 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
 
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.FAILED)
-                .executionMessage("Something went wrong while getting access to DOM elements. Probably bad network connection")
+                .executionMessage("Something went wrong while getting access to DOM elements")
                 .build();
 
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
 
-        throw new ServerException("Something went wrong while getting access to DOM elements. Probably bad network connection");
+        throw new ServerException("Something went wrong while getting access to DOM elements");
     }
 
     @Override
