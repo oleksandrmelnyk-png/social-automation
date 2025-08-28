@@ -5,7 +5,6 @@ import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.repository.ProxyRepository;
 import com.kayleighrichmond.social_automation.system.client.ip_api.IpApiClient;
 import com.kayleighrichmond.social_automation.system.client.ip_api.dto.GetProxyAddressResponse;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyAlreadyExistsException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.mapper.ProxyMapper;
@@ -34,20 +33,6 @@ public class ProxyService {
 
     public List<Proxy> findAll() {
         return proxyRepository.findAll();
-    }
-
-    public List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified) {
-        return proxyRepository.findAllByCountryCodeAndVerified(countryCode, verified);
-    }
-
-    public List<Proxy> findAllByCountryCodeAndVerifiedAndAccountsLimit(String countryCode, int accountsLinkedMax, int limit) {
-        List<Proxy> proxies = proxyRepository.findAllByCountryCodeVerifiedAccountsLimit(countryCode, true, accountsLinkedMax, limit);
-
-        if (proxies.isEmpty()) {
-            throw new NoProxiesAvailableException("No proxies available by country code: " + countryCode);
-        }
-
-        return proxies;
     }
 
     public void saveAll(AddProxyRequest addProxyRequest) {

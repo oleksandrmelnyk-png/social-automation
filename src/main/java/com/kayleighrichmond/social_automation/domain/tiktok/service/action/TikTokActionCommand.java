@@ -56,27 +56,28 @@ public abstract class TikTokActionCommand implements ActionCommand {
 
     private void initializeNstAndStartAccountCreation(TikTokAccount tikTokAccount, ActionRequest actionRequest) throws InterruptedException {
         PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
-        Page page = playwrightDto.getPage();
-
-        log.info("Opening browser");
-        page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
-
-        if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
-            log.info("User not signed in. Processing logging");
-            tikTokPlaywrightHelper.processLogIn(page, tikTokAccount);
-        }
-
-        playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
-        waitRandomlyInRange(1000, 1400);
 
         try {
+            Page page = playwrightDto.getPage();
+
+            log.info("Opening browser");
+            page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+
+            if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
+                log.info("User not signed in. Processing logging");
+                tikTokPlaywrightHelper.processLogIn(page, tikTokAccount);
+            }
+
+            playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
+            waitRandomlyInRange(1000, 1400);
+
             startAction(playwrightDto, actionRequest.getActionsCount());
         } finally {
             playwrightDto.getAutoCloseables().forEach(ac -> {
                 try {
                     ac.close();
                 } catch (Exception e) {
-                    log.error("Failed to close resource", e);
+                    log.error("Failed to close resource");
                 }
             });
         }

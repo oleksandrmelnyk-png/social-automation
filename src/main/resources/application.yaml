@@ -12,6 +12,6 @@ server:
     context-path: /api
 app:
   props:
-    accounts-per-proxy: 5
+    accounts-per-proxy: 3
     accounts-password: Qwerty1234@
     processing-threads: 0

@@ -71,7 +71,7 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
         }
 
         Locator cancelOptionsLocator = page.locator(CANCEL_BUTTON);
-        boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 3000);
+        boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 5000);
         if (optionsAppeared) {
             page.click(CANCEL_BUTTON);
             WaitHelper.waitRandomlyInRange(1000, 2000);

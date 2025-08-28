@@ -67,7 +67,7 @@ public class NstBrowserClient {
 
     public void updateProfileProxy(String profileId, Proxy proxy) {
         try{
-            MediaType mediaType = MediaType.parse("text/plain");
+            MediaType mediaType = MediaType.parse("application/json");
             UpdateProfileProxyRequest updateProfileProxyRequest = UpdateProfileProxyRequest.builder()
                     .url("http://%s:%s@%s:%d".formatted(
                             proxy.getUsername(),
@@ -77,6 +77,7 @@ public class NstBrowserClient {
                     )).build();
 
             String json = objectMapper.writeValueAsString(updateProfileProxyRequest);
+            System.out.println(json);
             RequestBody body = RequestBody.create(mediaType, json);
 
             Request request = new Request.Builder()

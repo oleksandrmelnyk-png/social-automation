@@ -45,7 +45,7 @@ public class TikTokProxyCommand implements ProxyCommand {
             log.info("Trying to find available proxy");
             try {
                 Proxy proxy = executeProxyByCountryCode(tikTokAccount.getCountryCode());
-                log.info("Found proxy for account {}, replacing", accountId);
+                log.info("Found proxy {} for account {}, replacing", proxy.getId(), accountId);
 
                 tikTokService.update(accountId, UpdateAccountRequest.builder().proxy(proxy).build());
                 nstBrowserClient.updateProfileProxy(tikTokAccount.getNstProfileId(), proxy);
@@ -59,8 +59,8 @@ public class TikTokProxyCommand implements ProxyCommand {
     }
 
     private Proxy executeProxyByCountryCode(String countryCode) {
-        List<Proxy> proxies = proxyService.findAllByCountryCodeAndVerifiedAndAccountsLimit(countryCode, appProps.getAccountsPerProxy(), 1);
-        Proxy proxy = proxyHelper.getAvailableProxiesOrRotate(proxies).stream()
+        List<Proxy> verifiedProxies = proxyService.verifyAllByCountryCode(countryCode);
+        Proxy proxy = proxyHelper.getAvailableProxiesOrRotate(verifiedProxies).stream()
                 .findFirst()
                 .orElseThrow(() -> new NoProxiesAvailableException("No proxies available by country code: " + countryCode));
 

@@ -88,6 +88,10 @@ public class TikTokPlaywrightHelper {
 
         Thread.sleep(1200 + (long)(Math.random() * 1600));
         page.click(LOG_IN_BUTTON);
+
+        playwrightHelper.waitForSelectorAndAct(page, CAPTCHA, locator -> {
+            throw new CaptchaException("Captcha appeared");
+        });
     }
 
     public void processSignUp(Page page, TikTokAccount tikTokAccount) {

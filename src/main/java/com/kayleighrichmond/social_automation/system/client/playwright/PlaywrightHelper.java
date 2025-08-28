@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class PlaywrightHelper {
 
     public void waitForSelectorAndAct(Page page, String selector, Consumer<Locator> consumer) {
-        waitForSelectorAndAct(10000, page, selector, consumer);
+        waitForSelectorAndAct(4000, page, selector, consumer);
     }
 
     public void waitForSelectorAndAct(int duration, Page page, String selector, Consumer<Locator> consumer) {
@@ -24,7 +24,7 @@ public class PlaywrightHelper {
     }
 
     public boolean waitForSelector(Locator locator) {
-        return waitForSelector(locator, 10000);
+        return waitForSelector(locator, 4000);
     }
 
     public boolean waitForSelector(Locator locator, int duration) {

@@ -35,7 +35,7 @@ public class ProxyHelper {
             if (proxy.getAccountsLinked() < appProps.getAccountsPerProxy()) {
                 return true;
             }
-            return rotateProxyAndResetAccountsLinked(proxy);
+            return rotateProxy(proxy);
         };
 
         return verifiedProxies.stream()
@@ -49,7 +49,7 @@ public class ProxyHelper {
                 .sum();
     }
 
-    public boolean rotateProxyAndResetAccountsLinked(Proxy proxy) {
+    public boolean rotateProxy(Proxy proxy) {
         try {
             proxyVerifier.changeProxyIp(proxy.getRebootLink());
             return true;

@@ -2,6 +2,8 @@ package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 
 import com.kayleighrichmond.social_automation.common.exception.BrowserCaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
+import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
+import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRequest;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ExceptionHandler;
@@ -22,6 +24,8 @@ import java.util.List;
 public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
     private final ProxyHelper proxyHelper;
+
+    private final ProxyService proxyService;
 
     private final TikTokService tikTokService;
 
@@ -89,7 +93,8 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         log.warn("Captcha appeared on Tik Tok account {}. Rotating proxy id and skipping account creation...", tikTokAccount.getEmail());
 
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
-        proxyHelper.rotateProxyAndResetAccountsLinked(tikTokAccount.getProxy());
+        proxyHelper.rotateProxy(tikTokAccount.getProxy());
+        proxyService.update(tikTokAccount.getProxy().getId(), UpdateProxyRequest.builder().accountsLinked(0).build());
     }
 
     private void handleBrowserCaptchaException(TikTokAccount tikTokAccount) {
