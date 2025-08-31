@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -31,22 +32,21 @@ public class ProxyHelper {
     }
 
     public List<Proxy> getAvailableProxiesOrRotate(List<Proxy> verifiedProxies) {
-        Predicate<Proxy> verifiedProxyPredicate = proxy -> {
-            if (proxy.getAccountsLinked() < appProps.getAccountsPerProxy()) {
-                return true;
-            }
-            return rotateProxy(proxy);
-        };
-
         return verifiedProxies.stream()
-                .filter(verifiedProxyPredicate)
+                .filter(this::isProxyVerified)
                 .toList();
     }
 
-    public int getAmountOfProxyUsage(List<Proxy> proxies) {
-        return proxies.stream()
-                .mapToInt(value -> appProps.getAccountsPerProxy() - value.getAccountsLinked())
-                .sum();
+    public boolean isProxyVerified(Proxy proxy) {
+        if (proxy.getAccountsLinked() < appProps.getAccountsPerProxy()) {
+            return true;
+        }
+
+        if (!proxy.getRebootLink().isBlank()) {
+            return rotateProxy(proxy);
+        } else {
+            return Instant.now().getEpochSecond() - proxy.getLastRotation().getEpochSecond() >= proxy.getAutoRotateInterval();
+        }
     }
 
     public boolean rotateProxy(Proxy proxy) {

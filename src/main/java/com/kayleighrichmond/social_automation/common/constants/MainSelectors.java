@@ -8,4 +8,6 @@ public class MainSelectors {
 
     public static String BODY = "body";
 
+    public static String BROWSER_CAPTCHA = "text=Our systems have detected unusual traffic";
+
 }

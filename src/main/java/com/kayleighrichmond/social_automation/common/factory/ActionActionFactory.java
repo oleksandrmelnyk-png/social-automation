@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.common.factory;
 
-import com.kayleighrichmond.social_automation.common.command.ActionCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountActionCommand;
 import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import org.springframework.stereotype.Component;
@@ -11,19 +11,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class ActionFactory {
+public class ActionActionFactory {
 
-    private final Map<Platform, Map<Action, ActionCommand>> actionCommandsByPlatform;
+    private final Map<Platform, Map<Action, AccountActionCommand>> actionCommandsByPlatform;
 
-    public ActionFactory(Set<ActionCommand> actionCommands) {
-        this.actionCommandsByPlatform = actionCommands.stream()
+    public ActionActionFactory(Set<AccountActionCommand> accountActionCommands) {
+        this.actionCommandsByPlatform = accountActionCommands.stream()
                 .collect(Collectors.groupingBy(
-                        ActionCommand::getPlatform,
-                        Collectors.toMap(ActionCommand::getAction, h -> h)
+                        AccountActionCommand::getPlatform,
+                        Collectors.toMap(AccountActionCommand::getAction, h -> h)
                 ));
     }
 
-    public ActionCommand getActionCommand(Platform platform, Action action) {
+    public AccountActionCommand getActionCommand(Platform platform, Action action) {
         return Optional.ofNullable(actionCommandsByPlatform.get(platform))
                 .map(m -> m.get(action))
                 .orElseThrow(() ->

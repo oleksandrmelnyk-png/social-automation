@@ -77,12 +77,12 @@ public class NstBrowserClient {
                     )).build();
 
             String json = objectMapper.writeValueAsString(updateProfileProxyRequest);
-            System.out.println(json);
             RequestBody body = RequestBody.create(mediaType, json);
 
             Request request = new Request.Builder()
                     .url(NST_API + "/profiles/" + profileId + "/proxy")
                     .method("PUT", body)
+                    .addHeader("Content-Type", "application/json")
                     .addHeader("x-api-key", NST_BROWSER_API_KEY)
                     .build();
 
@@ -92,7 +92,7 @@ public class NstBrowserClient {
             response.close();
         } catch (IOException e) {
             log.error("NstBrowserException: {}", e.getMessage());
-            throw new NstBrowserException("Couldn't update profile proxy in Nst browser");
+//            throw new NstBrowserException("Couldn't update profile proxy in Nst browser");
         }
     }
 

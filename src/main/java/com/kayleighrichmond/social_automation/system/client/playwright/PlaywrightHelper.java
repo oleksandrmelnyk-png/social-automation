@@ -32,7 +32,7 @@ public class PlaywrightHelper {
 
         try {
             locator.waitFor(new Locator.WaitForOptions().setTimeout(duration));
-            appeared = locator.isVisible();
+            appeared = locator.isVisible(new Locator.IsVisibleOptions().setTimeout(duration));
         } catch (PlaywrightException e) {
             appeared = false;
         }

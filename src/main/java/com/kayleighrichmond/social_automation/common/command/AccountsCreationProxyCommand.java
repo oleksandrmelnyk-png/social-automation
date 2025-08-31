@@ -3,10 +3,9 @@ package com.kayleighrichmond.social_automation.common.command;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 
-public interface AccountCommand {
+public interface AccountsCreationProxyCommand {
 
-    void executeAccountCreation(CreateAccountsRequest createAccountsRequest);
+    void executeAvailableProxies(CreateAccountsRequest createAccountsRequest);
 
     Platform getPlatform();
-
 }

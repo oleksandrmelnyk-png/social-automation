@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BODY;
+import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BROWSER_CAPTCHA;
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_IN_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
@@ -89,7 +89,7 @@ public class TikTokPlaywrightHelper {
         Thread.sleep(1200 + (long)(Math.random() * 1600));
         page.click(LOG_IN_BUTTON);
 
-        playwrightHelper.waitForSelectorAndAct(page, CAPTCHA, locator -> {
+        playwrightHelper.waitForSelectorAndAct(15000, page, CAPTCHA, locator -> {
             throw new CaptchaException("Captcha appeared");
         });
     }
@@ -101,12 +101,9 @@ public class TikTokPlaywrightHelper {
             log.info("Opening browser");
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
-            Locator pageContent = page.locator(BODY);
-            String text = pageContent.innerText();
-            if (text.contains("Our systems have detected unusual traffic") ||
-                    text.contains("I'm not a robot")) {
+            playwrightHelper.waitForSelectorAndAct(15000, page, BROWSER_CAPTCHA, locator -> {
                 throw new BrowserCaptchaException("Captcha or unusual traffic detected");
-            }
+            });
 
             page.waitForSelector(HOME_SIGN_UP);
             waitRandomlyInRange(1000, 2000);
@@ -151,7 +148,7 @@ public class TikTokPlaywrightHelper {
             waitRandomlyInRange(1300, 1700);
             page.click(SEND_CODE_BUTTON);
 
-            playwrightHelper.waitForSelectorAndAct(page, CAPTCHA, locator -> {
+            playwrightHelper.waitForSelectorAndAct(15000 ,page, CAPTCHA, locator -> {
                 throw new CaptchaException("Captcha appeared");
             });
 

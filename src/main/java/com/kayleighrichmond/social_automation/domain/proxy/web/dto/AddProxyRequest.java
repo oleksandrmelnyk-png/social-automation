@@ -1,5 +1,7 @@
 package com.kayleighrichmond.social_automation.domain.proxy.web.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -9,6 +11,7 @@ import java.util.List;
 @Data
 public class AddProxyRequest {
 
+    @Valid
     @NotNull(message = "Proxies is required")
     private List<ProxyRequest> proxies;
 
@@ -28,6 +31,9 @@ public class AddProxyRequest {
         private Integer port;
 
         private String rebootLink;
-    }
 
+        @NotNull(message = "Auto rotation interval is required")
+        @Min(value = 90, message = "Minimum 90 seconds")
+        private Long autoRotateInterval;
+    }
 }

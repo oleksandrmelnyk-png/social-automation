@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.system.controller;
 
-import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
 import com.kayleighrichmond.social_automation.system.service.SocialService;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ public class SocialController {
     }
 
     @PostMapping("/action")
-    public void processAction(@RequestParam String accountId, @Valid @RequestBody ActionRequest actionRequest) {
-        socialService.processAction(accountId, actionRequest);
+    public void processAction(@RequestParam String accountId, @Valid @RequestBody ProcessActionRequest processActionRequest) {
+        socialService.processAction(accountId, processActionRequest);
     }
 }

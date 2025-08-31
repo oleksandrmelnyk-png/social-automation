@@ -1,6 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
-import com.kayleighrichmond.social_automation.common.command.ProxyCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountActionProxyCommand;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
@@ -17,12 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TikTokProxyCommand implements ProxyCommand {
+public class TikTokActionProxyCommand implements AccountActionProxyCommand {
 
     private final TikTokService tikTokService;
 
@@ -65,7 +66,7 @@ public class TikTokProxyCommand implements ProxyCommand {
                 .orElseThrow(() -> new NoProxiesAvailableException("No proxies available by country code: " + countryCode));
 
         if (proxy.getAccountsLinked() == appProps.getAccountsPerProxy()) {
-            proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).build());
+            proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).lastRotation(Instant.now()).build());
         }
 
         return proxy;

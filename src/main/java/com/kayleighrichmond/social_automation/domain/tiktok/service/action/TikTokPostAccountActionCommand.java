@@ -11,7 +11,7 @@ import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokServic
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.system.client.playwright.dto.PlaywrightDto;
-import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitUntilState;
@@ -29,23 +29,23 @@ import static com.kayleighrichmond.social_automation.domain.tiktok.common.consta
 
 @Slf4j
 @Service
-public class TikTokPostActionCommand extends TikTokActionCommand {
+public class TikTokPostAccountActionCommand extends TikTokAccountActionCommand {
 
     private final TikTokService tikTokService;
 
     private final PlaywrightHelper playwrightHelper;
 
-    public TikTokPostActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+    public TikTokPostAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
         super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
         this.tikTokService = tikTokService;
         this.playwrightHelper = playwrightHelper;
     }
 
     @Override
-    protected void tearDownAccountAction(TikTokAccount tikTokAccount, ActionRequest actionRequest) {
+    protected void tearDownAccountAction(TikTokAccount tikTokAccount, ProcessActionRequest processActionRequest) {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.ACTED)
-                .publishedPosts(tikTokAccount.getPublishedPosts() + actionRequest.getActionsCount())
+                .publishedPosts(tikTokAccount.getPublishedPosts() + processActionRequest.getActionsCount())
                 .executionMessage("")
                 .build();
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
@@ -66,6 +66,7 @@ public class TikTokPostActionCommand extends TikTokActionCommand {
 
             String videoPath = tempFile.toAbsolutePath().toString();
             page.setInputFiles(UPLOAD_VIDEO_INPUT, Path.of(videoPath));
+
         } catch (IOException e) {
             throw new ServerException("Video upload failed");
         }

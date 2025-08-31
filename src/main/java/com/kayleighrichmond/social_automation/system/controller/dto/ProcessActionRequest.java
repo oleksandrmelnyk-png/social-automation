@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class ActionRequest {
+public class ProcessActionRequest {
 
     @NotNull(message = "Platform is required")
     private Platform platform;
@@ -19,5 +19,4 @@ public class ActionRequest {
     @Min(value = 1, message = "Minimum actions is 1")
     @Max(value = 1, message = "Maximum actions is 1")
     private Integer actionsCount;
-
 }

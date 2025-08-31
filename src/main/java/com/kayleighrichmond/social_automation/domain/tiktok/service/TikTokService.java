@@ -2,6 +2,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
 import com.kayleighrichmond.social_automation.common.exception.AccountNotFoundException;
 import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
+import com.kayleighrichmond.social_automation.common.type.Action;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.repository.TikTokRepository;
 import com.kayleighrichmond.social_automation.common.type.Status;
@@ -28,6 +29,10 @@ public class TikTokService {
 
     public List<TikTokAccount> findAllByStatus(Status status) {
         return tikTokRepository.findAllByStatus(status);
+    }
+
+    public List<TikTokAccount> findAllByAction(Action action) {
+        return tikTokRepository.findAllByAction(action);
     }
 
     public void saveAll(List<TikTokAccount> tikTokAccounts) {

@@ -1,7 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service.action;
 
 import com.kayleighrichmond.social_automation.common.type.Action;
-import com.kayleighrichmond.social_automation.config.PlaywrightInitializer;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokActionExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
@@ -9,7 +8,9 @@ import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokServic
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.system.client.playwright.dto.PlaywrightDto;
-import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.config.PlaywrightInitializer;
+import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,20 +22,23 @@ import static com.kayleighrichmond.social_automation.domain.tiktok.common.consta
 
 @Slf4j
 @Service
-public class TikTokCommentActionCommand extends TikTokActionCommand {
+public class TikTokLikeAccountActionCommand extends TikTokAccountActionCommand {
+
+    private final PlaywrightHelper playwrightHelper;
 
     private final TikTokService tikTokService;
 
-    public TikTokCommentActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+    public TikTokLikeAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
         super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
+        this.playwrightHelper = playwrightHelper;
         this.tikTokService = tikTokService;
     }
 
     @Override
-    protected void tearDownAccountAction(TikTokAccount tikTokAccount, ActionRequest actionRequest) {
+    protected void tearDownAccountAction(TikTokAccount tikTokAccount, ProcessActionRequest processActionRequest) {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.ACTED)
-                .commentedPosts(tikTokAccount.getCommentedPosts() + actionRequest.getActionsCount())
+                .likedPosts(tikTokAccount.getLikedPosts() + processActionRequest.getActionsCount())
                 .executionMessage("")
                 .build();
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
@@ -43,23 +47,22 @@ public class TikTokCommentActionCommand extends TikTokActionCommand {
     @Override
     protected void startAction(PlaywrightDto playwrightDto, int actionsCount) throws InterruptedException {
         try {
-            log.info("Starting commenting videos");
+            log.info("Starting liking videos");
 
             Page page = playwrightDto.getPage();
-            openCommentSection(page);
-
             Random random = new Random();
 
-            int liked = 0;
+            int liked = 0, videoIndex = 0;
             while (liked < actionsCount) {
                 boolean isDecidedToLike = random.nextBoolean();
-                if (isDecidedToLike) {
-                    watchVideoAndComment(page);
+                if (isDecidedToLike && !isLive(page, videoIndex)) {
+                    watchVideoAndLike(page, videoIndex);
                     liked++;
                 }
 
                 waitRandomlyInRange(1000, 3000);
                 page.click(NEXT_VIDEO_BUTTON);
+                videoIndex++;
             }
         } finally {
             playwrightDto.getAutoCloseables().forEach(ac -> {
@@ -74,23 +77,16 @@ public class TikTokCommentActionCommand extends TikTokActionCommand {
 
     @Override
     public Action getAction() {
-        return Action.COMMENT;
+        return Action.LIKE;
     }
 
-    private void openCommentSection(Page page) throws InterruptedException {
-        page.click(selectCommentButton(0));
-        waitRandomlyInRange(1000, 3000);
-    }
-
-    private void watchVideoAndComment(Page page) throws InterruptedException {
+    private void watchVideoAndLike(Page page, int videoIndex) throws InterruptedException {
         waitRandomlyInRange(2000, 5000);
-        page.focus(COMMENT_TEXT_DIV);
-        waitRandomlyInRange(1000, 3000);
+        page.click(selectLikeButton(videoIndex));
+    }
 
-        page.fill(COMMENT_TEXT_DIV, "\uD83D\uDE10");
-        waitRandomlyInRange(1000, 3000);
-
-        page.click(POST_COMMENT_DIV);
-        waitRandomlyInRange(1000, 3000);
+    private boolean isLive(Page page, int videoIndex) {
+        Locator avatarIcon = page.locator(selectLiveNow(videoIndex));
+        return playwrightHelper.waitForSelector(avatarIcon, 1000);
     }
 }

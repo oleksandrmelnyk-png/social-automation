@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @Entity
 @Builder
@@ -31,6 +33,9 @@ public class Proxy {
 
     private String rebootLink;
 
-    private Integer accountsLinked;
+    private Long autoRotateInterval;
 
+    private Instant lastRotation;
+
+    private Integer accountsLinked;
 }

@@ -1,10 +1,11 @@
 package com.kayleighrichmond.social_automation.system.service;
 
-import com.kayleighrichmond.social_automation.common.command.AccountCommand;
-import com.kayleighrichmond.social_automation.common.command.ActionCommand;
-import com.kayleighrichmond.social_automation.common.command.ProxyCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountsCreationCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountActionCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountActionProxyCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountsCreationProxyCommand;
 import com.kayleighrichmond.social_automation.common.factory.*;
-import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,22 +14,27 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SocialService {
 
-    private final AccountFactory accountFactory;
+    private final AccountsCreationFactory accountsCreationFactory;
 
     private final ProxyFactory proxyFactory;
 
-    private final ActionFactory actionFactory;
+    private final ActionActionFactory actionActionFactory;
+
+    private final AccountsCreationProxyFactory accountsCreationProxyFactory;
 
     public void processAccountsCreation(CreateAccountsRequest createAccountsRequest) {
-        AccountCommand accountCommand = accountFactory.getAccountCommand(createAccountsRequest.getPlatform());
-        accountCommand.executeAccountCreation(createAccountsRequest);
+        AccountsCreationProxyCommand accountCreationProxyCommand = accountsCreationProxyFactory.getAccountCreationProxyCommand(createAccountsRequest.getPlatform());
+        accountCreationProxyCommand.executeAvailableProxies(createAccountsRequest);
+
+        AccountsCreationCommand accountsCreationCommand = accountsCreationFactory.getAccountCommand(createAccountsRequest.getPlatform());
+        accountsCreationCommand.executeAccountCreation(createAccountsRequest);
     }
 
-    public void processAction(String accountId, ActionRequest actionRequest) {
-        ProxyCommand proxyCommand = proxyFactory.getProxyCommand(actionRequest.getPlatform());
-        proxyCommand.executeActiveProxy(accountId);
+    public void processAction(String accountId, ProcessActionRequest processActionRequest) {
+        AccountActionProxyCommand accountActionProxyCommand = proxyFactory.getProxyCommand(processActionRequest.getPlatform());
+        accountActionProxyCommand.executeActiveProxy(accountId);
 
-        ActionCommand actionCommand = actionFactory.getActionCommand(actionRequest.getPlatform(), actionRequest.getAction());
-        actionCommand.executeAction(accountId, actionRequest);
+        AccountActionCommand accountActionCommand = actionActionFactory.getActionCommand(processActionRequest.getPlatform(), processActionRequest.getAction());
+        accountActionCommand.executeAction(accountId, processActionRequest);
     };
 }

@@ -1,10 +1,10 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service.action;
 
-import com.kayleighrichmond.social_automation.common.command.ActionCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountActionCommand;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokActionExceptionHandler;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
-import com.kayleighrichmond.social_automation.system.controller.dto.ActionRequest;
+import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
 import com.kayleighrichmond.social_automation.common.exception.AccountIsInActionException;
 import com.kayleighrichmond.social_automation.common.exception.AccountsCurrentlyCreatingException;
 import com.kayleighrichmond.social_automation.common.type.Action;
@@ -29,7 +29,7 @@ import static com.kayleighrichmond.social_automation.domain.tiktok.common.consta
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public abstract class TikTokActionCommand implements ActionCommand {
+public abstract class TikTokAccountActionCommand implements AccountActionCommand {
 
     private final TikTokService tikTokService;
 
@@ -42,19 +42,19 @@ public abstract class TikTokActionCommand implements ActionCommand {
     private final TikTokActionExceptionHandler tikTokActionExceptionHandler;
 
     @Override
-    public void executeAction(String accountId, ActionRequest actionRequest) {
+    public void executeAction(String accountId, ProcessActionRequest processActionRequest) {
         TikTokAccount tikTokAccount = getAccountIfNotInActionAndNotInProgress(accountId);
         try {
-            tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().action(actionRequest.getAction()).build());
-            initializeNstAndStartAccountCreation(tikTokAccount, actionRequest);
-            tearDownAccountAction(tikTokAccount, actionRequest);
+            tikTokService.update(tikTokAccount.getId(), UpdateAccountRequest.builder().action(processActionRequest.getAction()).build());
+            initializeNstAndStartAccountCreation(tikTokAccount, processActionRequest);
+            tearDownAccountAction(tikTokAccount, processActionRequest);
             log.info("Successfully acted");
         } catch (Throwable e) {
             tikTokActionExceptionHandler.handle(e, tikTokAccount);
         }
     }
 
-    private void initializeNstAndStartAccountCreation(TikTokAccount tikTokAccount, ActionRequest actionRequest) throws InterruptedException {
+    private void initializeNstAndStartAccountCreation(TikTokAccount tikTokAccount, ProcessActionRequest processActionRequest) throws InterruptedException {
         PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(tikTokAccount.getNstProfileId());
 
         try {
@@ -71,7 +71,7 @@ public abstract class TikTokActionCommand implements ActionCommand {
             playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
             waitRandomlyInRange(1000, 1400);
 
-            startAction(playwrightDto, actionRequest.getActionsCount());
+            startAction(playwrightDto, processActionRequest.getActionsCount());
         } finally {
             playwrightDto.getAutoCloseables().forEach(ac -> {
                 try {
@@ -96,13 +96,13 @@ public abstract class TikTokActionCommand implements ActionCommand {
         if (tikTokAccount.getStatus() == Status.IN_PROGRESS
                 || tikTokAccount.getStatus() == Status.FAILED
         ) {
-            throw new AccountsCurrentlyCreatingException("This account is currently creating");
+            throw new AccountsCurrentlyCreatingException("This account is currently creating or creation failed");
         }
 
         return tikTokAccount;
     }
 
-    protected abstract void tearDownAccountAction(TikTokAccount tikTokAccount, ActionRequest actionRequest);
+    protected abstract void tearDownAccountAction(TikTokAccount tikTokAccount, ProcessActionRequest processActionRequest);
 
     protected abstract void startAction(PlaywrightDto playwrightDto, int actionsCount) throws InterruptedException;
 

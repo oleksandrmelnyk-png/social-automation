@@ -25,7 +25,14 @@ public interface ProxyRepository extends JpaRepository<Proxy, String> {
 
     List<Proxy> findAllByCountryCode(String countryCode);
 
-    List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified);
+    @Query(value = "SELECT * FROM proxy " +
+            "WHERE country_code = :countryCode " +
+            "AND verified = :verified " +
+            "LIMIT :limit",
+            nativeQuery = true)
+    List<Proxy> findAllByCountryCodeAndVerifiedAndLimit(@Param("countryCode") String countryCode,
+                                                        @Param("verified") boolean verified,
+                                                        @Param("limit") int limit);
 
     Optional<Proxy> findByUsername(String username);
 

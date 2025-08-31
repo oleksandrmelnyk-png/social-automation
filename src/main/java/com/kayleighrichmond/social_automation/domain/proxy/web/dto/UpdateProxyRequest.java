@@ -3,6 +3,8 @@ package com.kayleighrichmond.social_automation.domain.proxy.web.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Data
 @Builder
 public class UpdateProxyRequest {
@@ -22,5 +24,7 @@ public class UpdateProxyRequest {
     private Integer accountsLinked;
 
     private String rebootLink;
+
+    private Instant lastRotation;
 
 }

@@ -3,13 +3,17 @@ package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 import com.kayleighrichmond.social_automation.common.exception.ExceptionHandler;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.type.Action;
+import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
+import com.kayleighrichmond.social_automation.system.client.nst.exception.NstBrowserException;
 import com.microsoft.playwright.PlaywrightException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -25,6 +29,11 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
 
         if (e instanceof PlaywrightException) {
             handlePlaywrightException((PlaywrightException) e, tikTokAccount);
+            return;
+        }
+
+        if (e instanceof NstBrowserException) {
+            handleNstBrowserException(tikTokAccount.getId(),  (NstBrowserException) e);
             return;
         }
 
@@ -55,6 +64,21 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
 
         throw new ServerException("Something went wrong while getting access to DOM elements");
+    }
+
+    private void handleNstBrowserException(String accountId, NstBrowserException e) {
+        log.error(e.getMessage());
+
+        TikTokAccount tikTokAccount = tikTokService.findById(accountId);
+
+        List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByAction(tikTokAccount.getAction());
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setExecutionMessage(e.getMessage());
+        }
+        tikTokService.saveAll(allTikTokAccountsInProgress);
+
+        throw new ServerException("Nst browser exception occurred");
     }
 
     @Override

@@ -16,6 +16,7 @@ public class ProxyMapper implements SimpleMapper<AddProxyRequest.ProxyRequest, P
                 .host(dto.getHost())
                 .port(dto.getPort())
                 .rebootLink(dto.getRebootLink())
+                .autoRotateInterval(dto.getAutoRotateInterval())
                 .build();
     }
 

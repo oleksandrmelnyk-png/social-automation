@@ -2,6 +2,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 
 import com.kayleighrichmond.social_automation.common.exception.BrowserCaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
+import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRequest;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
@@ -11,11 +12,13 @@ import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokServic
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.common.type.Status;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
+import com.kayleighrichmond.social_automation.system.client.nst.exception.NstBrowserException;
 import com.microsoft.playwright.PlaywrightException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -45,6 +48,11 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
 
         if (e instanceof BrowserCaptchaException) {
             handleBrowserCaptchaException(tikTokAccount);
+            return;
+        }
+
+        if (e instanceof NstBrowserException) {
+            handleNstBrowserException((NstBrowserException) e);
             return;
         }
 
@@ -85,16 +93,26 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
     }
 
     private void handleCaptchaException(TikTokAccount tikTokAccount) {
+        log.warn("Captcha appeared on Tik Tok account {}. Trying to rotate proxy id and skipping account creation...", tikTokAccount.getEmail());
+
+        String executionMessage = "Captcha appearance.";
+        Proxy proxy = tikTokAccount.getProxy();
+
+        boolean hasRotated = proxyHelper.rotateProxy(proxy);
+        if (!hasRotated) {
+            proxyService.update(proxy.getId(), UpdateProxyRequest.builder().verified(false).build());
+            long proxyRotationTimeout = proxy.getAutoRotateInterval() - (Instant.now().getEpochSecond() - proxy.getLastRotation().getEpochSecond());
+            executionMessage += " Proxy rotation failed. Wait till this proxy rotate automatically in " + proxyRotationTimeout + " seconds";
+        } else {
+            proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).lastRotation(Instant.now()).build());
+            executionMessage += " Proxy rotated successfully. Try again.";
+        }
+
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .status(Status.FAILED)
-                .executionMessage("Captcha appearance")
+                .executionMessage(executionMessage)
                 .build();
-
-        log.warn("Captcha appeared on Tik Tok account {}. Rotating proxy id and skipping account creation...", tikTokAccount.getEmail());
-
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
-        proxyHelper.rotateProxy(tikTokAccount.getProxy());
-        proxyService.update(tikTokAccount.getProxy().getId(), UpdateProxyRequest.builder().accountsLinked(0).build());
     }
 
     private void handleBrowserCaptchaException(TikTokAccount tikTokAccount) {
@@ -106,5 +124,18 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         log.warn("Browser captcha appeared before entering to Tik Tok. Stopping... retry again");
 
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
+    }
+
+    private void handleNstBrowserException(NstBrowserException e) {
+        log.error(e.getMessage());
+
+        List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByStatus(Status.IN_PROGRESS);
+        for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
+            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setExecutionMessage(e.getMessage());
+        }
+        tikTokService.saveAll(allTikTokAccountsInProgress);
+
+        throw new ServerException("Nst browser exception occurred");
     }
 }

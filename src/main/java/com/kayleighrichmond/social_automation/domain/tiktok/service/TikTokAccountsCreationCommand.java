@@ -1,12 +1,10 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
-import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.config.AppProps;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NotEnoughProxiesException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
-import com.kayleighrichmond.social_automation.common.command.AccountCommand;
+import com.kayleighrichmond.social_automation.common.command.AccountsCreationCommand;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.builder.TikTokAccountBuilder;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.TikTokAccountCreationExceptionHandler;
 import com.kayleighrichmond.social_automation.system.client.nst.NstBrowserClient;
@@ -29,7 +27,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TikTokCreateAccountsCommand implements AccountCommand {
+public class TikTokAccountsCreationCommand implements AccountsCreationCommand {
 
     private final NstBrowserClient nstBrowserClient;
 
@@ -45,13 +43,11 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
 
     private final ProxyService proxyService;
 
-    private final ProxyHelper proxyHelper;
-
     private final AppProps appProps;
 
     @Override
     public void executeAccountCreation(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> proxies = getAvailableProxies(createAccountsRequest);
+        List<Proxy> proxies = proxyService.findAllByCountryCodeAndVerifiedAndLimit(createAccountsRequest.getCountryCode(), true, createAccountsRequest.getAmount());
 
         List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream()
                 .map(tikTokAccountBuilder::buildWithProxy)
@@ -84,33 +80,6 @@ public class TikTokCreateAccountsCommand implements AccountCommand {
                 createdCount++;
             }
         }
-    }
-
-    private List<Proxy> getAvailableProxies(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> verifiedProxiesByCountryCode = proxyService.verifyAllByCountryCode(createAccountsRequest.getCountryCode());
-        List<Proxy> filteredProxiesByCountryCodeAndLimited = verifiedProxiesByCountryCode.stream()
-                .filter(proxy -> proxy.getCountryCode().equals(createAccountsRequest.getCountryCode()))
-                .limit(createAccountsRequest.getAmount())
-                .toList();
-
-        List<Proxy> availableProxies = proxyHelper.getAvailableProxiesOrRotate(filteredProxiesByCountryCodeAndLimited);
-
-        for (Proxy availableProxy : availableProxies) {
-            if (availableProxy.getAccountsLinked() == appProps.getAccountsPerProxy()) {
-                proxyService.update(availableProxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).build());
-            }
-        }
-
-        int amountOfProxyUsage = proxyHelper.getAmountOfProxyUsage(availableProxies);
-        if (amountOfProxyUsage < createAccountsRequest.getAmount()) {
-            throw new NotEnoughProxiesException("Not enough proxies to create %d accounts. %s available for country %s".formatted(
-                    createAccountsRequest.getAmount(),
-                    amountOfProxyUsage,
-                    createAccountsRequest.getCountryCode()
-            ));
-        }
-
-        return availableProxies;
     }
 
     private CreateProfileResponse initializeNstAndStartAccountCreation(Proxy proxy, TikTokAccount tikTokAccount) {

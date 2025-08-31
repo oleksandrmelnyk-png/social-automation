@@ -1,6 +1,7 @@
 package com.kayleighrichmond.social_automation.domain.proxy.service;
 
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
+import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.repository.ProxyRepository;
 import com.kayleighrichmond.social_automation.system.client.ip_api.IpApiClient;
@@ -13,6 +14,7 @@ import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRe
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,7 @@ public class ProxyService {
             proxy.setCountryCode(proxyAddress.getCountryCode());
             proxy.setAccountsLinked(0);
             proxy.setVerified(true);
+            proxy.setLastRotation(Instant.now());
 
             proxies.add(proxy);
         }
@@ -76,7 +79,15 @@ public class ProxyService {
             }
         }
 
+        if (verifiedProxies.isEmpty()) {
+            throw new NoProxiesAvailableException("No proxies available by country code " + countryCode);
+        }
+
         return verifiedProxies;
+    }
+
+    public List<Proxy> findAllByCountryCodeAndVerifiedAndLimit(String countryCode, boolean verified, int limit) {
+        return proxyRepository.findAllByCountryCodeAndVerifiedAndLimit(countryCode, verified, limit);
     }
 
     public void update(String id, UpdateProxyRequest updateProxyRequest) {
@@ -90,6 +101,7 @@ public class ProxyService {
         Optional.ofNullable(updateProxyRequest.getPort()).ifPresent(proxy::setPort);
         Optional.ofNullable(updateProxyRequest.getAccountsLinked()).ifPresent(proxy::setAccountsLinked);
         Optional.ofNullable(updateProxyRequest.getRebootLink()).ifPresent(proxy::setRebootLink);
+        Optional.ofNullable(updateProxyRequest.getLastRotation()).ifPresent(proxy::setLastRotation);
 
         proxyRepository.save(proxy);
     }
