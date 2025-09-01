@@ -7,6 +7,6 @@ spring:
 nst-browser:
   host: 194.163.164.118
   port: 8000
-  api-key: f48ec8e6-4714-4bfe-a3bc-2964ce38019f
+  api-key: f6e76125-1771-48d6-94de-1d03a685884d
   url: http://194.163.164.118:8000/api/v2
   headless: false
