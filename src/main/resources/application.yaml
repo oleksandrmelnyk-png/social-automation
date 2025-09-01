@@ -2,7 +2,7 @@ spring:
   application:
     name: social-automation
   profiles:
-    active: dev-nst-local
+    active: prod
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
