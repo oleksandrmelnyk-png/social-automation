@@ -106,12 +106,10 @@ public class TikTokPlaywrightHelper {
             });
 
             page.waitForSelector(HOME_SIGN_UP);
-            waitRandomlyInRange(1000, 2000);
             page.click(HOME_SIGN_UP);
-            page.waitForLoadState();
             log.info("Starting account creation");
 
-            page.waitForSelector(LANGUAGE_SELECT);
+            playwrightHelper.waitForSelectorAndAct(15000, page, LANGUAGE_SELECT, Locator::click);
             waitRandomlyInRange(1100, 1900);
             page.selectOption(LANGUAGE_SELECT, "en");
 
