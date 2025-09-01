@@ -107,6 +107,7 @@ public class TikTokPlaywrightHelper {
 
             page.waitForSelector(HOME_SIGN_UP);
             page.click(HOME_SIGN_UP);
+            page.waitForLoadState();
             log.info("Starting account creation");
 
             playwrightHelper.waitForSelectorAndAct(15000, page, LANGUAGE_SELECT, Locator::click);

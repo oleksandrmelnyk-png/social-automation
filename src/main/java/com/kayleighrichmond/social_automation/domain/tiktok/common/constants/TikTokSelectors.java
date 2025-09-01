@@ -64,7 +64,7 @@ public class TikTokSelectors {
 
     public static String UPLOAD_VIDEO_INPUT = "input[type='file']";
 
-    public static String CANCEL_BUTTON = "button:has(div:has-text('Cancel'))";
+    public static String TURN_OR_OPTIONS = "button:has(div:has-text('Turn on'))";
 
     public static String UPLOADED_SPAN = "text=Uploaded";
 

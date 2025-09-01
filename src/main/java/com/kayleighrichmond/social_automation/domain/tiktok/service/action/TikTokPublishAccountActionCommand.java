@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service.action;
 
+import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.helper.WaitHelper;
 import com.kayleighrichmond.social_automation.common.type.Action;
@@ -71,29 +72,23 @@ public class TikTokPublishAccountActionCommand extends TikTokAccountActionComman
             throw new ServerException("Video upload failed");
         }
 
-        Locator cancelOptionsLocator = page.locator(CANCEL_BUTTON);
-        boolean optionsAppeared = playwrightHelper.waitForSelector(cancelOptionsLocator, 5000);
-        if (optionsAppeared) {
-            page.click(CANCEL_BUTTON);
-            WaitHelper.waitRandomlyInRange(1000, 2000);
-        }
+        playwrightHelper.waitForSelectorAndAct(12000, page, TURN_OR_OPTIONS, Locator::click);
+        WaitHelper.waitRandomlyInRange(1000, 2000);
 
-        Locator uploadedLocator = page.locator(UPLOADED_SPAN);
-        boolean uploadedAppeared = playwrightHelper.waitForSelector(uploadedLocator, 20000);
-        if (!uploadedAppeared) {
-           throw new ServerException("Video upload took too long");
-        }
+        playwrightHelper.waitForSelectorAndAct(25000, page, UPLOADED_SPAN, locator -> {
+            if (!locator.isVisible()) {
+                throw new ServerException("Video upload took too long");
+            }
+        });
         log.info("Video uploaded successfully");
 
         page.click(POST_BUTTON);
         page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
-        Locator publishedLocator = page.locator(VIDEO_PUBLISHED_SPAN);
-        boolean publishedAppeared = playwrightHelper.waitForSelector(publishedLocator);
-        if (publishedAppeared) {
+        playwrightHelper.waitForSelectorAndAct(page, VIDEO_PUBLISHED_SPAN, locator -> {
             page.navigate(TIKTOK_BASE_URL);
             page.waitForLoadState();
-        }
+        });
     }
 
     @Override

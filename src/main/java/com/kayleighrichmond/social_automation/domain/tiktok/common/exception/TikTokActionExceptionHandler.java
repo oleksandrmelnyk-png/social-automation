@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.common.exception;
 
+import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ExceptionHandler;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.type.Action;
@@ -29,6 +30,11 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
 
         if (e instanceof PlaywrightException) {
             handlePlaywrightException((PlaywrightException) e, tikTokAccount);
+            return;
+        }
+
+        if (e instanceof CaptchaException) {
+            handleCaptchaException(tikTokAccount);
             return;
         }
 
@@ -64,6 +70,16 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
 
         throw new ServerException("Something went wrong while getting access to DOM elements");
+    }
+
+    private void handleCaptchaException(TikTokAccount tikTokAccount) {
+        log.warn("Captcha appeared on Tik Tok account {}", tikTokAccount.getEmail());
+
+        UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
+                .action(Action.FAILED)
+                .executionMessage("Captcha appearance")
+                .build();
+        tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
     }
 
     private void handleNstBrowserException(String accountId, NstBrowserException e) {
