@@ -102,7 +102,7 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         if (!hasRotated) {
             proxyService.update(proxy.getId(), UpdateProxyRequest.builder().verified(false).build());
             long proxyRotationTimeout = proxy.getAutoRotateInterval() - (Instant.now().getEpochSecond() - proxy.getLastRotation().getEpochSecond());
-            executionMessage += " Proxy rotation failed. Wait till this proxy rotate automatically in " + proxyRotationTimeout + " seconds";
+            executionMessage += " Proxy rotation failed. Wait till this proxy rotate automatically in " + proxyRotationTimeout / 1000 + " seconds";
         } else {
             proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).lastRotation(Instant.now()).build());
             executionMessage += " Proxy rotated successfully. Try again.";
