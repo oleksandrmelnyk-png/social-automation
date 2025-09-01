@@ -29,13 +29,13 @@ import static com.kayleighrichmond.social_automation.domain.tiktok.common.consta
 
 @Slf4j
 @Service
-public class TikTokPostAccountActionCommand extends TikTokAccountActionCommand {
+public class TikTokPublishAccountActionCommand extends TikTokAccountActionCommand {
 
     private final TikTokService tikTokService;
 
     private final PlaywrightHelper playwrightHelper;
 
-    public TikTokPostAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+    public TikTokPublishAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
         super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
         this.tikTokService = tikTokService;
         this.playwrightHelper = playwrightHelper;
@@ -45,7 +45,7 @@ public class TikTokPostAccountActionCommand extends TikTokAccountActionCommand {
     protected void tearDownAccountAction(TikTokAccount tikTokAccount, ProcessActionRequest processActionRequest) {
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.ACTED)
-                .publishedPosts(tikTokAccount.getPublishedPosts() + processActionRequest.getActionsCount())
+                .publishedPosts(tikTokAccount.getPublishedPosts() + 1)
                 .executionMessage("")
                 .build();
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);

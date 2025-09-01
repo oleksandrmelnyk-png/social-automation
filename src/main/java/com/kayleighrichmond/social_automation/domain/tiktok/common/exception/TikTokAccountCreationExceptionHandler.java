@@ -136,6 +136,6 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         }
         tikTokService.saveAll(allTikTokAccountsInProgress);
 
-        throw new ServerException("Nst browser exception occurred");
+        throw new ServerException(e.getMessage());
     }
 }

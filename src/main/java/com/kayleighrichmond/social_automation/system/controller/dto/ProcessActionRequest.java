@@ -17,6 +17,6 @@ public class ProcessActionRequest {
     private Action action;
 
     @Min(value = 1, message = "Minimum actions is 1")
-    @Max(value = 1, message = "Maximum actions is 1")
+    @Max(value = 3, message = "Maximum actions is 3")
     private Integer actionsCount;
 }

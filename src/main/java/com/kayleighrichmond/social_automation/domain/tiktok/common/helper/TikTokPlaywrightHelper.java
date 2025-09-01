@@ -101,13 +101,14 @@ public class TikTokPlaywrightHelper {
             log.info("Opening browser");
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
-            playwrightHelper.waitForSelectorAndAct(15000, page, BROWSER_CAPTCHA, locator -> {
+            playwrightHelper.waitForSelectorAndAct(7000, page, BROWSER_CAPTCHA, locator -> {
                 throw new BrowserCaptchaException("Captcha or unusual traffic detected");
             });
 
             page.waitForSelector(HOME_SIGN_UP);
             waitRandomlyInRange(1000, 2000);
             page.click(HOME_SIGN_UP);
+            page.waitForLoadState();
             log.info("Starting account creation");
 
             page.waitForSelector(LANGUAGE_SELECT);
@@ -148,7 +149,7 @@ public class TikTokPlaywrightHelper {
             waitRandomlyInRange(1300, 1700);
             page.click(SEND_CODE_BUTTON);
 
-            playwrightHelper.waitForSelectorAndAct(15000 ,page, CAPTCHA, locator -> {
+            playwrightHelper.waitForSelectorAndAct(20000 ,page, CAPTCHA, locator -> {
                 throw new CaptchaException("Captcha appeared");
             });
 

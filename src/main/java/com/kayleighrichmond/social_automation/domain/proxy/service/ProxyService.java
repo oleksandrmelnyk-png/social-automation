@@ -54,6 +54,7 @@ public class ProxyService {
             proxy.setCountryCode(proxyAddress.getCountryCode());
             proxy.setAccountsLinked(0);
             proxy.setVerified(true);
+            proxy.setAutoRotateInterval(proxyRequest.getAutoRotateInterval() * 1000);
             proxy.setLastRotation(Instant.now());
 
             proxies.add(proxy);
