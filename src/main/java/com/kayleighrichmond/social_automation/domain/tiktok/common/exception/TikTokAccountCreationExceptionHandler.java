@@ -56,6 +56,11 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
             return;
         }
 
+        if (e instanceof SendCodeButtonNotWorkedException) {
+            handleSendCodeButtonNotWorkedException(tikTokAccount, (SendCodeButtonNotWorkedException) e);
+            return;
+        }
+
         handleDefault(e);
     }
 
@@ -137,5 +142,16 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         tikTokService.saveAll(allTikTokAccountsInProgress);
 
         throw new ServerException(e.getMessage());
+    }
+
+    private void handleSendCodeButtonNotWorkedException( TikTokAccount tikTokAccount, SendCodeButtonNotWorkedException e) {
+        UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
+                .status(Status.FAILED)
+                .executionMessage(e.getMessage())
+                .build();
+
+        log.warn("Sending code to email took to long. It may cause code expiration");
+
+        tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
     }
 }

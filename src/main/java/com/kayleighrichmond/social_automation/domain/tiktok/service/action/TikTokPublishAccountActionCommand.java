@@ -82,7 +82,14 @@ public class TikTokPublishAccountActionCommand extends TikTokAccountActionComman
         });
         log.info("Video uploaded successfully");
 
-        page.click(POST_BUTTON);
+        playwrightHelper.waitForSelectorAndAct(page, POST_NOW_BUTTON, locator -> {
+            if (!locator.isVisible()) {
+                page.click(POST_BUTTON);
+            } else {
+                page.click(POST_NOW_BUTTON);
+            }
+        });
+
         page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         playwrightHelper.waitForSelectorAndAct(page, VIDEO_PUBLISHED_SPAN, locator -> {

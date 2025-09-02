@@ -3,6 +3,7 @@ package com.kayleighrichmond.social_automation.domain.tiktok.common.helper;
 import com.kayleighrichmond.social_automation.common.exception.BrowserCaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
 import com.kayleighrichmond.social_automation.common.exception.ServerException;
+import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.SendCodeButtonNotWorkedException;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.system.client.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
@@ -105,18 +106,20 @@ public class TikTokPlaywrightHelper {
                 throw new BrowserCaptchaException("Captcha or unusual traffic detected");
             });
 
-            page.waitForSelector(HOME_SIGN_UP);
-            page.click(HOME_SIGN_UP);
-            page.waitForLoadState();
+            playwrightHelper.waitForSelectorAndAct(20000, page, HOME_SIGN_UP, Locator::click);
             log.info("Starting account creation");
 
-            playwrightHelper.waitForSelectorAndAct(15000, page, LANGUAGE_SELECT, Locator::click);
-            waitRandomlyInRange(1100, 1900);
-            page.selectOption(LANGUAGE_SELECT, "en");
+            playwrightHelper.waitForSelectorAndAct(20000, page, LANGUAGE_SELECT, locator -> {
+                String selectedValue = locator.evaluate("el => el.value").toString();
+                if (!selectedValue.equals("en")) {
+                    playwrightHelper.waitForSelectorAndAct(15000, page, LANGUAGE_SELECT, Locator::click);
+                    page.selectOption(LANGUAGE_SELECT, "en");
+                }
+            });
 
-            page.waitForSelector(SIGN_UP_USE_PHONE_OR_EMAIL);
-            waitRandomlyInRange(1200, 2300);
+            waitRandomlyInRange(1200, 2200);
             page.click(SIGN_UP_USE_PHONE_OR_EMAIL);
+            waitRandomlyInRange(1200, 2300);
 
             page.waitForSelector(SIGN_UP_WITH_EMAIL);
             waitRandomlyInRange(1000, 1700);
@@ -145,8 +148,12 @@ public class TikTokPlaywrightHelper {
 
             waitRandomlyInRange(900, 1700);
             page.focus(SEND_CODE_BUTTON);
+            try {
+                page.click(SEND_CODE_BUTTON);
+            } catch (Exception e) {
+                throw new SendCodeButtonNotWorkedException("Sending code to email took to long");
+            }
             waitRandomlyInRange(1300, 1700);
-            page.click(SEND_CODE_BUTTON);
 
             playwrightHelper.waitForSelectorAndAct(20000 ,page, CAPTCHA, locator -> {
                 throw new CaptchaException("Captcha appeared");

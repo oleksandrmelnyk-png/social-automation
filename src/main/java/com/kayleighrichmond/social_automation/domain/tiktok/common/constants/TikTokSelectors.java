@@ -8,11 +8,11 @@ import java.time.Month;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TikTokSelectors {
 
-    public static String HOME_SIGN_UP = "h3:has-text('Sign up')";
+    public static String HOME_SIGN_UP = "a[href='https://www.tiktok.com/signup'] > h3";
 
     public static String HOME_L0G_IN = "h3:has-text('Log in')";
 
-    public static String SIGN_UP_USE_PHONE_OR_EMAIL = "text=Use phone or email";
+    public static String SIGN_UP_USE_PHONE_OR_EMAIL = "div[data-e2e='channel-item'] >> text='Use phone or email'";
 
     public static String LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME = "text=Use phone / email / username";
 
@@ -71,6 +71,8 @@ public class TikTokSelectors {
     public static String POST_BUTTON = "button[data-e2e='post_video_button']";
 
     public static String VIDEO_PUBLISHED_SPAN = "text=Video published";
+
+    public static String POST_NOW_BUTTON = "button:has-text('Post now')";
 
     public static String selectCommentButton(int videoIndex) {
         return "article[data-scroll-index='%d'] button[aria-label^='Read or add comments']".formatted(videoIndex);
