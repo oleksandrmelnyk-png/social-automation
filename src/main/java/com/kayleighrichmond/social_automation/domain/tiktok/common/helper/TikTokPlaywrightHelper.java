@@ -181,7 +181,7 @@ public class TikTokPlaywrightHelper {
             page.waitForSelector(SIGN_UP_BUTTON);
             page.click(SIGN_UP_BUTTON);
 
-            playwrightHelper.waitForSelectorAndAct(15000, page, SELECT_ADD, Locator::click);
+            playwrightHelper.waitForSelectorAndAct(20000, page, SELECT_ADD, Locator::click);
             waitRandomlyInRange(1000, 1400);
 
         } catch (InterruptedException e) {

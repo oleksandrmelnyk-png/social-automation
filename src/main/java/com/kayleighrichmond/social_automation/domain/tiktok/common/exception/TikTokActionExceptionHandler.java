@@ -89,7 +89,7 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
 
         List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByAction(tikTokAccount.getAction());
         for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
-            tikTokAccountsInProgress.setStatus(Status.FAILED);
+            tikTokAccountsInProgress.setAction(Action.FAILED);
             tikTokAccountsInProgress.setExecutionMessage(e.getMessage());
         }
         tikTokService.saveAll(allTikTokAccountsInProgress);
