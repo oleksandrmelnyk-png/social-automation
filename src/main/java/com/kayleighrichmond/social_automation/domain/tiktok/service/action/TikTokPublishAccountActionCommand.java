@@ -72,23 +72,27 @@ public class TikTokPublishAccountActionCommand extends TikTokAccountActionComman
             throw new ServerException("Video upload failed");
         }
 
-        playwrightHelper.waitForSelectorAndAct(12000, page, TURN_OR_OPTIONS, Locator::click);
-        WaitHelper.waitRandomlyInRange(1000, 2000);
-
-        playwrightHelper.waitForSelectorAndAct(25000, page, UPLOADED_SPAN, locator -> {
+        playwrightHelper.waitForSelectorAndAct(30000, page, UPLOADED_SPAN, locator -> {
             if (!locator.isVisible()) {
                 throw new ServerException("Video upload took too long");
             }
         });
+
         log.info("Video uploaded successfully");
 
-        playwrightHelper.waitForSelectorAndAct(page, POST_NOW_BUTTON, locator -> {
-            if (!locator.isVisible()) {
+        WaitHelper.waitRandomlyInRange(1000, 2000);
+        playwrightHelper.waitForSelectorAndAct(12000, page, CANCEL_CONTENT_CHECKS, Locator::click);
+
+        WaitHelper.waitRandomlyInRange(1500, 2500);
+        playwrightHelper.waitForSelectorAndAct(page, POST_BUTTON, locator -> {
+            if (locator.isVisible()) {
                 page.click(POST_BUTTON);
             } else {
                 page.click(POST_NOW_BUTTON);
             }
         });
+
+        WaitHelper.waitRandomlyInRange(1000, 1800);
 
         page.navigate(TIKTOK_BASE_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
