@@ -33,61 +33,83 @@ public class TikTokPlaywrightHelper {
 
     private final MailTmService mailTmService;
 
-    public void processLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
+    public void processAppLogin(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
+        waitRandomlyInRange(1200, 1600);
+        page.click(TOP_RIGHT_LOG_IN_BUTTON);
+        waitRandomlyInRange(1200, 2000);
+
+        playwrightHelper.waitForSelectorAndAct(15000, page, LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME, Locator::click);
+        waitRandomlyInRange(1200, 1500);
+
+        page.click(LOG_IN_WITH_EMAIL_OR_USERNAME);
+        waitRandomlyInRange(1200, 1500);
+
+        page.fill(LOG_IN_EMAIL_INPUT, tikTokAccount.getEmail());
+        waitRandomlyInRange(1000, 1400);
+
+        page.fill(PASSWORD_INPUT, tikTokAccount.getPassword());
+        waitRandomlyInRange(1200, 1900);
+
+        page.click(LOG_IN_BUTTON_V2);
+        page.waitForLoadState();
+    }
+
+    @Deprecated
+    public void processBrowserLogIn(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
         log.info("Logging in");
 
         page.navigate(TIKTOK_SIGN_IN_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         page.waitForSelector(HOME_L0G_IN);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(HOME_L0G_IN);
 
         page.waitForSelector(LANGUAGE_SELECT);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.selectOption(LANGUAGE_SELECT, "en");
 
         page.waitForSelector(LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME);
 
         page.waitForSelector(LOG_IN_WITH_EMAIL_OR_USERNAME);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_WITH_EMAIL_OR_USERNAME);
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.fill(LOG_IN_EMAIL_INPUT, tikTokAccount.getEmail());
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.fill(PASSWORD_INPUT, tikTokAccount.getPassword());
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_BUTTON);
 
         page.navigate(TIKTOK_SIGN_IN_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
         page.waitForSelector(HOME_L0G_IN);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(HOME_L0G_IN);
 
         page.waitForSelector(LANGUAGE_SELECT);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.selectOption(LANGUAGE_SELECT, "en");
 
         page.waitForSelector(LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_USE_PHONE_OR_EMAIL_OR_USERNAME);
 
         page.waitForSelector(LOG_IN_WITH_EMAIL_OR_USERNAME);
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_WITH_EMAIL_OR_USERNAME);
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.fill(LOG_IN_EMAIL_INPUT, tikTokAccount.getEmail());
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.fill(PASSWORD_INPUT, tikTokAccount.getPassword());
 
-        Thread.sleep(1200 + (long)(Math.random() * 1600));
+        waitRandomlyInRange(1200, 1600);
         page.click(LOG_IN_BUTTON);
 
         playwrightHelper.waitForSelectorAndAct(15000, page, CAPTCHA, locator -> {

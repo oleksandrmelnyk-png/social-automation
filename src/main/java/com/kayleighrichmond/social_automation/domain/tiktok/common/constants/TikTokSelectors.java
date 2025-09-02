@@ -44,6 +44,10 @@ public class TikTokSelectors {
 
     public static String LOG_IN_BUTTON = "button:has-text('Log in')";
 
+    public static String LOG_IN_BUTTON_V2 = "button[data-e2e='login-button']";
+
+    public static String TOP_RIGHT_LOG_IN_BUTTON = "#top-right-action-bar-login-button";
+
     public static String SELECT_ADD = "div.webapp-pa-prompt_container__pa_button";
 
     public static String CAPTCHA = "#captcha-verify-container-main-page";

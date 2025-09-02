@@ -65,7 +65,7 @@ public abstract class TikTokAccountActionCommand implements AccountActionCommand
 
             if (!tikTokPlaywrightHelper.isLoggedIn(page)) {
                 log.info("User not signed in. Processing logging");
-                tikTokPlaywrightHelper.processLogIn(page, tikTokAccount);
+                tikTokPlaywrightHelper.processAppLogin(page, tikTokAccount);
             }
 
             playwrightHelper.waitForSelectorAndAct(page, SELECT_ADD, Locator::click);
