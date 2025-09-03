@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_BASE_URL;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -68,6 +70,7 @@ public class TikTokAccountsCreationCommand implements AccountsCreationCommand {
 
                     UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                             .status(Status.CREATED)
+                            .accountLink(TIKTOK_BASE_URL + "@" + tikTokAccount.getUsername())
                             .executionMessage(null)
                             .nstProfileId(createProfileResponse.getData().getProfileId())
                             .build();

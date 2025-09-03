@@ -15,5 +15,6 @@ public class CreateAccountsRequest {
     @Min(value = 1, message = "Required minimum 1 account to create")
     private int amount;
 
+    @NotNull(message = "Country code is required")
     private String countryCode;
 }

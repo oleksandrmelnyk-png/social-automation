@@ -38,7 +38,6 @@ public class TikTokAccountBuilder {
                 .countryCode(proxy.getCountryCode())
                 .dob(randomUser.getDob())
                 .username(uniqueUsername)
-                .accountLink(TIKTOK_BASE_URL + "@" + uniqueUsername)
                 .build();
     }
 

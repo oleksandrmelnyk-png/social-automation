@@ -38,4 +38,5 @@ public class UpdateAccountRequest {
 
     private String nstProfileId;
 
+    private String accountLink;
 }

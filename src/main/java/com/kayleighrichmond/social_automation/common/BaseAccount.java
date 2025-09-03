@@ -6,6 +6,7 @@ import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -14,7 +15,8 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class BaseAccount {
+@EqualsAndHashCode(callSuper = true)
+public abstract class BaseAccount extends AuditingEntity {
 
     @Column(unique = true)
     private String email;
