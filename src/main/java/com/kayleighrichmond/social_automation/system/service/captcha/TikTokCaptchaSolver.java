@@ -1,7 +1,6 @@
 package com.kayleighrichmond.social_automation.system.service.captcha;
 
 import com.kayleighrichmond.social_automation.common.exception.CaptchaException;
-import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
 import com.kayleighrichmond.social_automation.system.client.sadcaptcha.SadCaptchaClient;
 import com.kayleighrichmond.social_automation.system.client.sadcaptcha.dto.RotateCaptchaResponse;
@@ -32,6 +31,7 @@ public class TikTokCaptchaSolver implements CaptchaSolver {
         try {
             solveRotate(page);
         } catch (Exception e) {
+            log.error("Captcha not solved: ", e);
             solvePuzzle(page);
         }
     }
@@ -41,7 +41,7 @@ public class TikTokCaptchaSolver implements CaptchaSolver {
 
         for (int i = 1; i <= 3; i++) {
             if (hasSolved(page)) {
-                log.info("Successfully solves captcha");
+                log.info("Successfully solved captcha");
                 break;
             }
 
@@ -97,12 +97,12 @@ public class TikTokCaptchaSolver implements CaptchaSolver {
     private void solvePuzzle(Page page) {
         log.info("Solving puzzle captcha");
 
-        log.info(page.content());
+        System.out.println(page.locator("body").innerHTML());
         throw new CaptchaException("Appeared unhandled Puzzle captcha");
     }
 
     private boolean hasSolved(Page page) {
-        Locator captchaLocator = page.locator(CAPTCHA_IMG);
+        Locator captchaLocator = page.locator(CAPTCHA_IMG).first();
         playwrightHelper.waitForSelector(captchaLocator, 4000);
         return !captchaLocator.isVisible();
     }
