@@ -53,7 +53,7 @@ public class TikTokAccountsCreationCommand implements AccountsCreationCommand {
     @Override
     public void executeAccountCreation(CreateAccountsRequest createAccountsRequest) {
         List<Proxy> proxies = proxyService.findAllByCountryCodeAndVerified(createAccountsRequest.getCountryCode(), true);
-        proxies = proxyHelper.getAvailableProxiesOrRotate(proxies);
+        proxies = proxyHelper.getAvailableProxiesOrRotate(proxies).subList(0, createAccountsRequest.getAmount());
 
         List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream()
                 .map(tikTokAccountBuilder::buildWithProxy)

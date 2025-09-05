@@ -125,7 +125,8 @@ public class TikTokPlaywrightHelper {
 
         try {
             log.info("Opening browser");
-            waitRandomlyInRange(1200, 2200);
+            page.waitForLoadState();
+            waitRandomlyInRange(2000, 2700);
             page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
             page.waitForLoadState();
 
