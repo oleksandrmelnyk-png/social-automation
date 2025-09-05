@@ -90,11 +90,11 @@ public class TikTokAccountCreationExceptionHandler implements ExceptionHandler {
         List<TikTokAccount> allTikTokAccountsInProgress = tikTokService.findAllByStatus(Status.IN_PROGRESS);
         for (TikTokAccount tikTokAccountsInProgress : allTikTokAccountsInProgress) {
             tikTokAccountsInProgress.setStatus(Status.FAILED);
-            tikTokAccountsInProgress.setExecutionMessage("Something went wrong while getting access to DOM elements");
+            tikTokAccountsInProgress.setExecutionMessage("Something went wrong while getting access to DOM elements. Probably bad internet connection");
         }
         tikTokService.saveAll(allTikTokAccountsInProgress);
 
-        throw new ServerException("Something went wrong while getting access to DOM elements");
+        throw new ServerException("Something went wrong while getting access to DOM elements. Probably bad internet connection");
     }
 
     private void handleCaptchaException(TikTokAccount tikTokAccount) {

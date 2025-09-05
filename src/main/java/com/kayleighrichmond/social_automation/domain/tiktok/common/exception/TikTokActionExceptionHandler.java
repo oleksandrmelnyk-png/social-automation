@@ -64,12 +64,12 @@ public class TikTokActionExceptionHandler implements ExceptionHandler {
 
         UpdateAccountRequest updateAccountRequest = UpdateAccountRequest.builder()
                 .action(Action.FAILED)
-                .executionMessage("Something went wrong while getting access to DOM elements")
+                .executionMessage("Something went wrong while getting access to DOM elements. Probably bad internet connection")
                 .build();
 
         tikTokService.update(tikTokAccount.getId(), updateAccountRequest);
 
-        throw new ServerException("Something went wrong while getting access to DOM elements");
+        throw new ServerException("Something went wrong while getting access to DOM elements. Probably bad internet connection");
     }
 
     private void handleCaptchaException(TikTokAccount tikTokAccount) {
