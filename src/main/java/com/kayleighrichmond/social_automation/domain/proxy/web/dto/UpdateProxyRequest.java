@@ -26,4 +26,6 @@ public class UpdateProxyRequest {
     private String rebootLink;
 
     private Instant lastRotation;
+
+    private Long autoRotateInterval;
 }

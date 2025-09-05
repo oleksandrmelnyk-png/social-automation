@@ -103,6 +103,7 @@ public class ProxyService {
         Optional.ofNullable(updateProxyRequest.getAccountsLinked()).ifPresent(proxy::setAccountsLinked);
         Optional.ofNullable(updateProxyRequest.getRebootLink()).ifPresent(proxy::setRebootLink);
         Optional.ofNullable(updateProxyRequest.getLastRotation()).ifPresent(proxy::setLastRotation);
+        Optional.ofNullable(updateProxyRequest.getAutoRotateInterval()).ifPresent(proxy::setAutoRotateInterval);
 
         proxyRepository.save(proxy);
     }
