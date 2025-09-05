@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.system.controller;
 
 import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
-import com.kayleighrichmond.social_automation.system.service.SocialService;
+import com.kayleighrichmond.social_automation.system.service.social.SocialService;
 import com.kayleighrichmond.social_automation.system.controller.dto.CreateAccountsRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

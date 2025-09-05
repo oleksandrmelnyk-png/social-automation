@@ -78,6 +78,12 @@ public class TikTokSelectors {
 
     public static String POST_NOW_BUTTON = "button:has-text('Post now')";
 
+    public static String CAPTCHA_IMG = "img[alt='Captcha']";
+
+    public static String CAPTCHA_SLIDEBAR = ".cap-w-full.cap-h-40";
+
+    public static String CAPTCHA_SLIDER_ICON = ".secsdk-captcha-drag-icon";
+
     public static String selectCommentButton(int videoIndex) {
         return "article[data-scroll-index='%d'] button[aria-label^='Read or add comments']".formatted(videoIndex);
     }

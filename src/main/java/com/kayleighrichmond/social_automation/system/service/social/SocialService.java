@@ -1,4 +1,4 @@
-package com.kayleighrichmond.social_automation.system.service;
+package com.kayleighrichmond.social_automation.system.service.social;
 
 import com.kayleighrichmond.social_automation.common.command.AccountsCreationCommand;
 import com.kayleighrichmond.social_automation.common.command.AccountActionCommand;

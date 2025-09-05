@@ -1,16 +1,16 @@
-package com.kayleighrichmond.social_automation.domain.tiktok.service;
+package com.kayleighrichmond.social_automation.domain.tiktok.service.proxy;
 
 import com.kayleighrichmond.social_automation.common.command.AccountActionProxyCommand;
 import com.kayleighrichmond.social_automation.common.type.Platform;
 import com.kayleighrichmond.social_automation.config.AppProps;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotVerifiedException;
+import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyService;
 import com.kayleighrichmond.social_automation.domain.proxy.service.ProxyVerifier;
 import com.kayleighrichmond.social_automation.domain.proxy.web.dto.UpdateProxyRequest;
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
+import com.kayleighrichmond.social_automation.domain.tiktok.service.TikTokService;
 import com.kayleighrichmond.social_automation.domain.tiktok.web.dto.UpdateAccountRequest;
 import com.kayleighrichmond.social_automation.system.client.nst.NstBrowserClient;
 import lombok.RequiredArgsConstructor;
@@ -50,9 +50,9 @@ public class TikTokActionProxyCommand implements AccountActionProxyCommand {
 
                 tikTokService.update(accountId, UpdateAccountRequest.builder().proxy(proxy).build());
                 nstBrowserClient.updateProfileProxy(tikTokAccount.getNstProfileId(), proxy);
-            } catch (NoProxiesAvailableException e) {
+            } catch (ProxyNotAvailableException e) {
                 log.error("No proxies available", e);
-                throw new ProxyNotVerifiedException("Proxy is not verified for this account");
+                throw new ProxyNotAvailableException("Proxy is not verified for this account");
             }
         } else if (!tikTokAccount.getProxy().isVerified()) {
             proxyService.update(tikTokAccount.getProxy().getId(), UpdateProxyRequest.builder().verified(true).build());
@@ -63,7 +63,7 @@ public class TikTokActionProxyCommand implements AccountActionProxyCommand {
         List<Proxy> verifiedProxies = proxyService.verifyAllByCountryCode(countryCode);
         Proxy proxy = proxyHelper.getAvailableProxiesOrRotate(verifiedProxies).stream()
                 .findFirst()
-                .orElseThrow(() -> new NoProxiesAvailableException("No proxies available by country code: " + countryCode));
+                .orElseThrow(() -> new ProxyNotAvailableException("No proxies available by country code: " + countryCode));
 
         if (proxy.getAccountsLinked() == appProps.getAccountsPerProxy()) {
             proxyService.update(proxy.getId(), UpdateProxyRequest.builder().accountsLinked(0).lastRotation(Instant.now()).build());

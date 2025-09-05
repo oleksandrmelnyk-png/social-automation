@@ -1,5 +1,6 @@
 package com.kayleighrichmond.social_automation.domain.tiktok.service;
 
+import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
 import com.kayleighrichmond.social_automation.config.AppProps;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.tiktok.common.helper.TikTokPlaywrightHelper;
@@ -45,11 +46,14 @@ public class TikTokAccountsCreationCommand implements AccountsCreationCommand {
 
     private final ProxyService proxyService;
 
+    private final ProxyHelper proxyHelper;
+
     private final AppProps appProps;
 
     @Override
     public void executeAccountCreation(CreateAccountsRequest createAccountsRequest) {
-        List<Proxy> proxies = proxyService.findAllByCountryCodeAndVerifiedAndLimit(createAccountsRequest.getCountryCode(), true, createAccountsRequest.getAmount());
+        List<Proxy> proxies = proxyService.findAllByCountryCodeAndVerified(createAccountsRequest.getCountryCode(), true);
+        proxies = proxyHelper.getAvailableProxiesOrRotate(proxies);
 
         List<TikTokAccount> tikTokAccountsWithProxies = proxies.stream()
                 .map(tikTokAccountBuilder::buildWithProxy)
@@ -88,7 +92,6 @@ public class TikTokAccountsCreationCommand implements AccountsCreationCommand {
     private CreateProfileResponse initializeNstAndStartAccountCreation(Proxy proxy, TikTokAccount tikTokAccount) {
         CreateProfileResponse createProfileResponse = nstBrowserClient.createProfile(tikTokAccount.getName().getFirst() + " " + tikTokAccount.getName().getLast(), proxy);
         PlaywrightDto playwrightDto = playwrightInitializer.initPlaywright(createProfileResponse.getData().getProfileId());
-
         Page page = playwrightDto.getPage();
 
         try {

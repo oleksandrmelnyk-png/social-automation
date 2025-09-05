@@ -7,6 +7,7 @@ import com.kayleighrichmond.social_automation.domain.tiktok.common.exception.Sen
 import com.kayleighrichmond.social_automation.domain.tiktok.model.TikTokAccount;
 import com.kayleighrichmond.social_automation.system.client.mailtm.MailTmService;
 import com.kayleighrichmond.social_automation.system.client.playwright.PlaywrightHelper;
+import com.kayleighrichmond.social_automation.system.service.captcha.TikTokCaptchaSolver;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitUntilState;
@@ -18,7 +19,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
-import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.BROWSER_CAPTCHA;
+import static com.kayleighrichmond.social_automation.common.constants.MainSelectors.*;
 import static com.kayleighrichmond.social_automation.common.helper.WaitHelper.waitRandomlyInRange;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_IN_BROWSER_URL;
 import static com.kayleighrichmond.social_automation.domain.tiktok.common.constants.TikTokConstants.TIKTOK_SIGN_UP_BROWSER_URL;
@@ -32,6 +33,8 @@ public class TikTokPlaywrightHelper {
     private final PlaywrightHelper playwrightHelper;
 
     private final MailTmService mailTmService;
+
+    private final TikTokCaptchaSolver tikTokCaptchaSolver;
 
     public void processAppLogin(Page page, TikTokAccount tikTokAccount) throws InterruptedException {
         waitRandomlyInRange(1200, 1600);
@@ -122,16 +125,38 @@ public class TikTokPlaywrightHelper {
 
         try {
             log.info("Opening browser");
-            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+            waitRandomlyInRange(1200, 2200);
+            page.navigate(TIKTOK_SIGN_UP_BROWSER_URL);
+            page.waitForLoadState();
 
-            playwrightHelper.waitForSelectorAndAct(7000, page, BROWSER_CAPTCHA, locator -> {
+            playwrightHelper.waitForSelectorAndAct(4000, page, GOOGLE_CAPTCHA, locator -> {
                 throw new BrowserCaptchaException("Captcha or unusual traffic detected");
             });
 
-            playwrightHelper.waitForSelectorAndAct(20000, page, HOME_SIGN_UP, Locator::click);
+            playwrightHelper.waitForSelectorAndAct(4000, page, SELECT_GOOGLE_LANGUAGE, locator -> {
+                try {
+                    if (locator.isVisible()) {
+                        waitRandomlyInRange(1200, 2200);
+                        page.click(SELECT_GOOGLE_LANGUAGE);
+
+                        waitRandomlyInRange(1200, 2200);
+                        page.click(GOOGLE_ENGLISH);
+
+                        waitRandomlyInRange(1200, 2200);
+                        page.click(REJECT_ALL);
+                        waitRandomlyInRange(1200, 2200);
+                    }
+                } catch (InterruptedException e) {
+                    throw new ServerException("Couldn't select browser language");
+                }
+            });
+
+            playwrightHelper.waitForSelectorAndAct(20_000, page, HOME_SIGN_UP, Locator::click);
             log.info("Starting account creation");
 
-            playwrightHelper.waitForSelectorAndAct(20000, page, LANGUAGE_SELECT, locator -> {
+            page.waitForLoadState();
+
+            playwrightHelper.waitForSelectorAndAct(60_000 ,page, LANGUAGE_SELECT, locator -> {
                 String selectedValue = locator.evaluate("el => el.value").toString();
                 if (!selectedValue.equals("en")) {
                     playwrightHelper.waitForSelectorAndAct(15000, page, LANGUAGE_SELECT, Locator::click);
@@ -177,9 +202,13 @@ public class TikTokPlaywrightHelper {
             }
             waitRandomlyInRange(1300, 1700);
 
-            playwrightHelper.waitForSelectorAndAct(20000 ,page, CAPTCHA, locator -> {
-                throw new CaptchaException("Captcha appeared");
+            playwrightHelper.waitForSelectorAndAct(30000, page, CAPTCHA, locator -> {
+                if (locator.isVisible()) {
+                    playwrightHelper.waitForSelector(page.locator(CAPTCHA_IMG), 20_000);
+                    tikTokCaptchaSolver.solve(page);
+                }
             });
+            waitRandomlyInRange(1200, 2000);
 
             page.waitForSelector(RESEND_CODE_TIMEOUT);
 
@@ -210,6 +239,11 @@ public class TikTokPlaywrightHelper {
             log.error("InterruptedException: {}", e.getMessage());
             throw new ServerException("Something went wrong with account registering");
         }
+    }
+
+    public boolean isLive(Page page, int videoIndex) {
+        Locator avatarIcon = page.locator(selectLiveNow(videoIndex));
+        return playwrightHelper.waitForSelector(avatarIcon, 1000);
     }
 
     public boolean isLoggedIn(Page page) {

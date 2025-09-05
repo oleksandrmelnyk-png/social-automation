@@ -10,29 +10,9 @@ import java.util.Optional;
 
 public interface ProxyRepository extends JpaRepository<Proxy, String> {
 
-    @Query(value = "SELECT * FROM proxy " +
-            "WHERE country_code = :countryCode " +
-            "AND verified = :verified " +
-            "AND accounts_linked < :accountsLinkedMax " +
-            "LIMIT :limit",
-            nativeQuery = true)
-    List<Proxy> findAllByCountryCodeVerifiedAccountsLimit(
-            @Param("countryCode") String countryCode,
-            @Param("verified") boolean verified,
-            @Param("accountsLinkedMax") int accountsLinkedMax,
-            @Param("limit") int limit
-    );
+    List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified);
 
     List<Proxy> findAllByCountryCode(String countryCode);
-
-    @Query(value = "SELECT * FROM proxy " +
-            "WHERE country_code = :countryCode " +
-            "AND verified = :verified " +
-            "LIMIT :limit",
-            nativeQuery = true)
-    List<Proxy> findAllByCountryCodeAndVerifiedAndLimit(@Param("countryCode") String countryCode,
-                                                        @Param("verified") boolean verified,
-                                                        @Param("limit") int limit);
 
     Optional<Proxy> findByUsername(String username);
 

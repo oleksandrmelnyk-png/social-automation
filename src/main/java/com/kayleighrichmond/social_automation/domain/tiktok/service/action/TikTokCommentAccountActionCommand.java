@@ -25,9 +25,12 @@ public class TikTokCommentAccountActionCommand extends TikTokAccountActionComman
 
     private final TikTokService tikTokService;
 
+    private final TikTokPlaywrightHelper tikTokPlaywrightHelper;
+
     public TikTokCommentAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
         super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
         this.tikTokService = tikTokService;
+        this.tikTokPlaywrightHelper = tikTokPlaywrightHelper;
     }
 
     @Override
@@ -50,16 +53,17 @@ public class TikTokCommentAccountActionCommand extends TikTokAccountActionComman
 
             Random random = new Random();
 
-            int liked = 0;
+            int liked = 0, videoIndex = 0;
             while (liked < actionsCount) {
                 boolean isDecidedToLike = random.nextBoolean();
-                if (isDecidedToLike) {
+                if (!tikTokPlaywrightHelper.isLive(page, videoIndex) && isDecidedToLike) {
                     watchVideoAndComment(page);
                     liked++;
                 }
 
                 waitRandomlyInRange(1000, 3000);
                 page.click(NEXT_VIDEO_BUTTON);
+                videoIndex++;
             }
         } finally {
             playwrightDto.getAutoCloseables().forEach(ac -> {

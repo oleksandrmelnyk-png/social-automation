@@ -4,6 +4,7 @@ import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.system.client.nst.dto.CreateProfileRequest;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateProfileRequestBuilder {
 
@@ -17,11 +18,19 @@ public class CreateProfileRequestBuilder {
                 proxy.getHost(),
                 proxy.getPort()
         ));
+
         CreateProfileRequest.Fingerprint fingerprint = new CreateProfileRequest.Fingerprint();
+
         CreateProfileRequest.Fingerprint.Localization localization = new CreateProfileRequest.Fingerprint.Localization();
         localization.setLanguage("en");
         localization.setLanguages(List.of("en-US"));
         localization.setTimezone("America/New_York");
+        fingerprint.setFlags(Map.of(
+                "localization", "Custom",
+                "timezone", "Custom"
+        ));
+        fingerprint.setLocalization(localization);
+
         request.setFingerprint(fingerprint);
         return request;
     }

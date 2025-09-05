@@ -1,6 +1,7 @@
 package com.kayleighrichmond.social_automation.system.client.randomuser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kayleighrichmond.social_automation.common.exception.ServerException;
 import com.kayleighrichmond.social_automation.common.helper.OkHttpHelper;
 import com.kayleighrichmond.social_automation.system.client.randomuser.dto.RandomUserResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class RandomUserClient {
 
             return objectMapper.readValue(responseBody, RandomUserResponse.class).getResults().get(0);
         } catch (IOException e) {
-            throw new RandomUserApiException("Exception while getting random user from RandomUserApi");
+            throw new ServerException("Exception while getting random user from RandomUserApi");
         }
     }
 }

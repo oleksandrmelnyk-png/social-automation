@@ -10,7 +10,6 @@ import com.kayleighrichmond.social_automation.system.client.playwright.Playwrigh
 import com.kayleighrichmond.social_automation.system.client.playwright.dto.PlaywrightDto;
 import com.kayleighrichmond.social_automation.config.PlaywrightInitializer;
 import com.kayleighrichmond.social_automation.system.controller.dto.ProcessActionRequest;
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,13 +23,13 @@ import static com.kayleighrichmond.social_automation.domain.tiktok.common.consta
 @Service
 public class TikTokLikeAccountActionCommand extends TikTokAccountActionCommand {
 
-    private final PlaywrightHelper playwrightHelper;
+    private final TikTokPlaywrightHelper tikTokPlaywrightHelper;
 
     private final TikTokService tikTokService;
 
-    public TikTokLikeAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, PlaywrightInitializer playwrightInitializer, TikTokPlaywrightHelper tikTokPlaywrightHelper, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
+    public TikTokLikeAccountActionCommand(TikTokService tikTokService, PlaywrightHelper playwrightHelper, TikTokPlaywrightHelper tikTokPlaywrightHelper, PlaywrightInitializer playwrightInitializer, TikTokActionExceptionHandler tikTokActionExceptionHandler) {
         super(tikTokService, playwrightHelper, playwrightInitializer, tikTokPlaywrightHelper, tikTokActionExceptionHandler);
-        this.playwrightHelper = playwrightHelper;
+        this.tikTokPlaywrightHelper = tikTokPlaywrightHelper;
         this.tikTokService = tikTokService;
     }
 
@@ -55,7 +54,7 @@ public class TikTokLikeAccountActionCommand extends TikTokAccountActionCommand {
             int liked = 0, videoIndex = 0;
             while (liked < actionsCount) {
                 boolean isDecidedToLike = random.nextBoolean();
-                if (isDecidedToLike && !isLive(page, videoIndex)) {
+                if (isDecidedToLike && !tikTokPlaywrightHelper.isLive(page, videoIndex)) {
                     watchVideoAndLike(page, videoIndex);
                     liked++;
                 }
@@ -83,10 +82,5 @@ public class TikTokLikeAccountActionCommand extends TikTokAccountActionCommand {
     private void watchVideoAndLike(Page page, int videoIndex) throws InterruptedException {
         waitRandomlyInRange(2000, 5000);
         page.click(selectLikeButton(videoIndex));
-    }
-
-    private boolean isLive(Page page, int videoIndex) {
-        Locator avatarIcon = page.locator(selectLiveNow(videoIndex));
-        return playwrightHelper.waitForSelector(avatarIcon, 1000);
     }
 }

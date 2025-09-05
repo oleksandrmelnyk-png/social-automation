@@ -16,5 +16,4 @@ public class AppProps {
     private String accountsPassword;
 
     private int processingThreads;
-
 }

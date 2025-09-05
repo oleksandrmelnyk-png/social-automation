@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.common.helper;
 
 import com.kayleighrichmond.social_automation.config.AppProps;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotVerifiedException;
+import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotFoundException;
 import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyRotationFailed;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Slf4j
 @Component
@@ -27,22 +26,22 @@ public class ProxyHelper {
         boolean verifiedProxy = proxyVerifier.verifyProxy(proxy, false);
 
         if (!verifiedProxy) {
-            throw new ProxyNotVerifiedException("Proxy %s has not verified".formatted(proxy.getUsername()));
+            throw new ProxyNotAvailableException("Proxy %s has not verified".formatted(proxy.getUsername()));
         }
     }
 
     public List<Proxy> getAvailableProxiesOrRotate(List<Proxy> verifiedProxies) {
         return verifiedProxies.stream()
-                .filter(this::isProxyVerified)
+                .filter(this::isProxyAvailable)
                 .toList();
     }
 
-    public boolean isProxyVerified(Proxy proxy) {
+    public boolean isProxyAvailable(Proxy proxy) {
         if (proxy.getAccountsLinked() < appProps.getAccountsPerProxy()) {
             return true;
         }
 
-        if (!proxy.getRebootLink().isBlank()) {
+        if (proxy.getRebootLink() != null && !proxy.getRebootLink().isBlank()) {
             return rotateProxy(proxy);
         } else {
             return Instant.now().getEpochSecond() - proxy.getLastRotation().getEpochSecond() >= proxy.getAutoRotateInterval();

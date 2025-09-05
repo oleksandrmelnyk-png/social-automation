@@ -1,7 +1,7 @@
 package com.kayleighrichmond.social_automation.domain.proxy.service;
 
 import com.kayleighrichmond.social_automation.common.helper.ProxyHelper;
-import com.kayleighrichmond.social_automation.domain.proxy.common.exception.NoProxiesAvailableException;
+import com.kayleighrichmond.social_automation.domain.proxy.common.exception.ProxyNotAvailableException;
 import com.kayleighrichmond.social_automation.domain.proxy.model.Proxy;
 import com.kayleighrichmond.social_automation.domain.proxy.repository.ProxyRepository;
 import com.kayleighrichmond.social_automation.system.client.ip_api.IpApiClient;
@@ -81,14 +81,14 @@ public class ProxyService {
         }
 
         if (verifiedProxies.isEmpty()) {
-            throw new NoProxiesAvailableException("No proxies available by country code " + countryCode);
+            throw new ProxyNotAvailableException("No proxies available by country code " + countryCode);
         }
 
         return verifiedProxies;
     }
 
-    public List<Proxy> findAllByCountryCodeAndVerifiedAndLimit(String countryCode, boolean verified, int limit) {
-        return proxyRepository.findAllByCountryCodeAndVerifiedAndLimit(countryCode, verified, limit);
+    public List<Proxy> findAllByCountryCodeAndVerified(String countryCode, boolean verified) {
+        return proxyRepository.findAllByCountryCodeAndVerified(countryCode, verified);
     }
 
     public void update(String id, UpdateProxyRequest updateProxyRequest) {

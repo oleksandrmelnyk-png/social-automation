@@ -46,7 +46,7 @@ public class TikTokService {
             throw new AccountsCurrentlyCreatingException("Other accounts currently creating");
         }
 
-        return tikTokRepository.saveAll(retrieveNotExistingAccounts(tikTokAccounts));
+        return tikTokRepository.saveAllAndFlush(retrieveNotExistingAccounts(tikTokAccounts));
     }
 
     public void update(String id, UpdateAccountRequest updateAccountRequest) {
